@@ -8,9 +8,9 @@ import pv.nedobezhkin.supcom.service.dto.PostDTO;
 public interface PostService {
 	PostDTO save(PostDTO postDTO);
 
-	PostDTO update(Long id, PostDTO postDTO);
+	PostDTO update(PostDTO postDTO);
 
-	PostDTO findOne(Long id);
+	PostDTO partialUpdate(PostDTO postDTO);
 
 	Optional<PostDTO> findById(Long id);
 

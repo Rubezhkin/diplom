@@ -18,15 +18,15 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public UserDTO update(Long id, UserDTO userDTO) {
+	public UserDTO update(UserDTO userDTO) {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Unimplemented method 'update'");
 	}
 
 	@Override
-	public UserDTO findOne(Long id) {
+	public UserDTO partialUpdate(UserDTO userDTO) {
 		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'findOne'");
+		throw new UnsupportedOperationException("Unimplemented method 'partialUpdate'");
 	}
 
 	@Override

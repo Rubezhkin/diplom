@@ -8,9 +8,9 @@ import pv.nedobezhkin.supcom.service.dto.AuthorDTO;
 public interface AuthorService {
 	AuthorDTO save(AuthorDTO authorDTO);
 
-	AuthorDTO update(Long id, AuthorDTO authorDTO);
+	AuthorDTO update(AuthorDTO authorDTO);
 
-	AuthorDTO findOne(Long id);
+	AuthorDTO partialUpdate(AuthorDTO authorDTO);
 
 	Optional<AuthorDTO> findById(Long id);
 

@@ -8,9 +8,9 @@ import pv.nedobezhkin.supcom.service.dto.MediaFileDTO;
 public interface MediaFileService {
 	MediaFileDTO save(MediaFileDTO mediaFileDTO);
 
-	MediaFileDTO update(Long id, MediaFileDTO mediaFileDTO);
+	MediaFileDTO update(MediaFileDTO mediaFileDTO);
 
-	MediaFileDTO findOne(Long id);
+	MediaFileDTO partialUpdate(MediaFileDTO mediaFileDTO);
 
 	Optional<MediaFileDTO> findById(Long id);
 

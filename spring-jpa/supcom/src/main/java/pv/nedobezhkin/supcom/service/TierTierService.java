@@ -8,9 +8,9 @@ import pv.nedobezhkin.supcom.service.dto.TierTierDTO;
 public interface TierTierService {
 	TierTierDTO save(TierTierDTO tierTierDTO);
 
-	TierTierDTO update(Long id, TierTierDTO tierTierDTO);
+	TierTierDTO update(TierTierDTO tierTierDTO);
 
-	TierTierDTO findOne(Long id);
+	TierTierDTO partialUpdate(TierTierDTO tierTierDTO);
 
 	Optional<TierTierDTO> findById(Long id);
 

@@ -18,15 +18,15 @@ public class MediaFileServiceImpl implements MediaFileService {
 	}
 
 	@Override
-	public MediaFileDTO update(Long id, MediaFileDTO mediaFileDTO) {
+	public MediaFileDTO update(MediaFileDTO mediaFileDTO) {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Unimplemented method 'update'");
 	}
 
 	@Override
-	public MediaFileDTO findOne(Long id) {
+	public MediaFileDTO partialUpdate(MediaFileDTO mediaFileDTO) {
 		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'findOne'");
+		throw new UnsupportedOperationException("Unimplemented method 'partialUpdate'");
 	}
 
 	@Override

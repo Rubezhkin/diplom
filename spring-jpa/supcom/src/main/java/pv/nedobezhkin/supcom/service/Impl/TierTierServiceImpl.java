@@ -18,15 +18,15 @@ public class TierTierServiceImpl implements TierTierService {
 	}
 
 	@Override
-	public TierTierDTO update(Long id, TierTierDTO tierTierDTO) {
+	public TierTierDTO update(TierTierDTO tierTierDTO) {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Unimplemented method 'update'");
 	}
 
 	@Override
-	public TierTierDTO findOne(Long id) {
+	public TierTierDTO partialUpdate(TierTierDTO tierTierDTO) {
 		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'findOne'");
+		throw new UnsupportedOperationException("Unimplemented method 'partialUpdate'");
 	}
 
 	@Override

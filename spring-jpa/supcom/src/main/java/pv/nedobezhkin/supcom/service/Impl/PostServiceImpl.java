@@ -18,15 +18,15 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
-	public PostDTO update(Long id, PostDTO postDTO) {
+	public PostDTO update(PostDTO postDTO) {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Unimplemented method 'update'");
 	}
 
 	@Override
-	public PostDTO findOne(Long id) {
+	public PostDTO partialUpdate(PostDTO postDTO) {
 		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'findOne'");
+		throw new UnsupportedOperationException("Unimplemented method 'partialUpdate'");
 	}
 
 	@Override

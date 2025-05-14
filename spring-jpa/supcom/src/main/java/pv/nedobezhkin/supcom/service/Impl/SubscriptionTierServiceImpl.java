@@ -18,15 +18,15 @@ public class SubscriptionTierServiceImpl implements SubscriptionTierService {
 	}
 
 	@Override
-	public SubscriptionTierDTO update(Long id, SubscriptionTierDTO subscriptionTierDTO) {
+	public SubscriptionTierDTO update(SubscriptionTierDTO subscriptionTierDTO) {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Unimplemented method 'update'");
 	}
 
 	@Override
-	public SubscriptionTierDTO findOne(Long id) {
+	public SubscriptionTierDTO partialUpdate(SubscriptionTierDTO subscriptionTierDTO) {
 		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'findOne'");
+		throw new UnsupportedOperationException("Unimplemented method 'partialUpdate'");
 	}
 
 	@Override

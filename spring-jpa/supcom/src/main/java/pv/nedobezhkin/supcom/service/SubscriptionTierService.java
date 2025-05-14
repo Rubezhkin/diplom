@@ -8,9 +8,9 @@ import pv.nedobezhkin.supcom.service.dto.SubscriptionTierDTO;
 public interface SubscriptionTierService {
 	SubscriptionTierDTO save(SubscriptionTierDTO subscriptionTierDTO);
 
-	SubscriptionTierDTO update(Long id, SubscriptionTierDTO subscriptionTierDTO);
+	SubscriptionTierDTO update(SubscriptionTierDTO subscriptionTierDTO);
 
-	SubscriptionTierDTO findOne(Long id);
+	SubscriptionTierDTO partialUpdate(SubscriptionTierDTO subscriptionTierDTO);
 
 	Optional<SubscriptionTierDTO> findById(Long id);
 

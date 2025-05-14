@@ -8,9 +8,9 @@ import pv.nedobezhkin.supcom.service.dto.UserDTO;
 public interface UserService {
 	UserDTO save(UserDTO userDTO);
 
-	UserDTO update(Long id, UserDTO userDTO);
+	UserDTO update(UserDTO userDTO);
 
-	UserDTO findOne(Long id);
+	UserDTO partialUpdate(UserDTO userDTO);
 
 	Optional<UserDTO> findById(Long id);
 
