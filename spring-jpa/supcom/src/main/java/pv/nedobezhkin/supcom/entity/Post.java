@@ -28,7 +28,7 @@ public class Post {
 	private Author author;
 
 	@ManyToOne
-	@JoinColumn(name = "subsctiption_tier_id", referencedColumnName = "id")
+	@JoinColumn(name = "subscription_tier_id", referencedColumnName = "id")
 	SubscriptionTier tier;
 
 	@Column(name = "creation_date")

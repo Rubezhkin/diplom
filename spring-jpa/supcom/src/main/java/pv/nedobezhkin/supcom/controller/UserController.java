@@ -76,7 +76,6 @@ public class UserController {
 		if (userService.findById(id) == null) {
 			throw new BadRequestException("id not found");
 		}
-		userDTO.setId(id);
 		UserDTO result = userService.partialUpdate(userDTO);
 
 		return ResponseEntity.ok().body(result);

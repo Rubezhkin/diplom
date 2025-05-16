@@ -42,6 +42,9 @@ public class AuthorServiceImpl implements AuthorService {
 	public AuthorDTO update(AuthorDTO authorDTO) {
 		LOG.debug("Request to update Author: {}", authorDTO);
 		Author author = authorMapper.toEntity(authorDTO);
+		User owner = userRepository.findById(authorDTO.getOwner())
+				.orElseThrow(() -> new EntityNotFoundException("User not found"));
+		author.setOwner(owner);
 		author = authorRepository.save(author);
 		return authorMapper.toDto(author);
 	}

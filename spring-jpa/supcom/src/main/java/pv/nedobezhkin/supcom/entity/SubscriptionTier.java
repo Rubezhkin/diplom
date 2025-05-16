@@ -18,7 +18,7 @@ import lombok.Data;
 public class SubscriptionTier {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long Id;
+	private Long id;
 
 	@ManyToOne
 	@JoinColumn(name = "author_id", referencedColumnName = "id")

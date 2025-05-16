@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class SubscriptionTierDTO {
-	private Long Id;
+	private Long id;
 	private Long author;
 	private String name;
 	private String description;

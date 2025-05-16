@@ -1,12 +1,10 @@
 package pv.nedobezhkin.supcom.service.mapper;
 
-import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import pv.nedobezhkin.supcom.entity.Author;
 import pv.nedobezhkin.supcom.entity.User;
-import pv.nedobezhkin.supcom.repository.UserRepository;
 import pv.nedobezhkin.supcom.service.dto.AuthorDTO;
 
 @Mapper(componentModel = "spring")
