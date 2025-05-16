@@ -3,12 +3,9 @@ package pv.nedobezhkin.supcom.service.mapper;
 import java.util.List;
 
 import org.mapstruct.BeanMapping;
-import org.mapstruct.Context;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 import org.mapstruct.NullValuePropertyMappingStrategy;
-
-import pv.nedobezhkin.supcom.repository.UserRepository;
 
 public interface EntityMapper<D, E> {
 	E toEntity(D dto);
@@ -21,5 +18,5 @@ public interface EntityMapper<D, E> {
 
 	@Named("partialUpdate")
 	@BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-	void partialUpdate(@MappingTarget E entity, D dto, @Context UserRepository userRepository);
+	void partialUpdate(@MappingTarget E entity, D dto);
 }

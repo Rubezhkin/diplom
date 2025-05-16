@@ -53,7 +53,7 @@ public class AuthorServiceImpl implements AuthorService {
 		return authorRepository
 				.findById(authorDTO.getId())
 				.map(existingAuthor -> {
-					authorMapper.partialUpdate(existingAuthor, authorDTO, userRepository);
+					authorMapper.partialUpdate(existingAuthor, authorDTO);
 					return existingAuthor;
 				})
 				.map(authorRepository::save)

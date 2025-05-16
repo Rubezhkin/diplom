@@ -19,15 +19,14 @@ public interface AuthorMapper extends EntityMapper<AuthorDTO, Author> {
 	@Override
 	Author toEntity(AuthorDTO dto);
 
-	// Преобразование Long (owner ID) в User
-	default User mapOwnerIdToUser(Long ownerId, @Context UserRepository userRepository) {
+	default User mapOwnerIdToUser(Long ownerId) {
 		if (ownerId == null)
 			return null;
-		return userRepository.findById(ownerId)
-				.orElseThrow(() -> new IllegalArgumentException("User not found with id: " + ownerId));
+		User user = new User();
+		user.setId(ownerId);
+		return user;
 	}
 
-	// Преобразование User в Long (owner ID)
 	default Long mapUserToOwnerId(User user) {
 		return user != null ? user.getId() : null;
 	}

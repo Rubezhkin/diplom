@@ -20,8 +20,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/authors")
 @RequiredArgsConstructor
 public class AuthorController {
-
-	// private final AuthorRepository authorRepository;
 	private static final Logger LOG = LoggerFactory.getLogger(AuthorController.class);
 	private final AuthorService authorService;
 
@@ -68,16 +66,10 @@ public class AuthorController {
 	public ResponseEntity<AuthorDTO> partialUpdateAuthor(@PathVariable Long id,
 			@NotNull @RequestBody AuthorDTO authorDTO) throws BadRequestException {
 		LOG.debug("REST request to patch Author: {} {}", id, authorDTO);
-		if (authorDTO.getId() == null) {
-			throw new BadRequestException("id null");
-		}
-		if (!Objects.equals(authorDTO.getId(), id)) {
-			throw new BadRequestException("id invalid");
-		}
 		if (authorService.findById(id) == null) {
 			throw new BadRequestException("id not found");
 		}
-
+		authorDTO.setId(id);
 		AuthorDTO result = authorService.partialUpdate(authorDTO);
 
 		return ResponseEntity.ok().body(result);
