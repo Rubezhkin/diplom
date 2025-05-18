@@ -2,49 +2,75 @@ package pv.nedobezhkin.supcom.service.Impl;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import lombok.RequiredArgsConstructor;
+import pv.nedobezhkin.supcom.entity.MediaFile;
+import pv.nedobezhkin.supcom.repository.MediaFileRepository;
 import pv.nedobezhkin.supcom.service.MediaFileService;
 import pv.nedobezhkin.supcom.service.dto.MediaFileDTO;
+import pv.nedobezhkin.supcom.service.mapper.MediaFileMapper;
 
 @Service
+@RequiredArgsConstructor
 public class MediaFileServiceImpl implements MediaFileService {
 
+	private static final Logger LOG = LoggerFactory.getLogger(MediaFileServiceImpl.class);
+	private final MediaFileRepository mediafileRepository;
+	private final MediaFileMapper mediafileMapper;
+
 	@Override
-	public MediaFileDTO save(MediaFileDTO mediaFileDTO) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'save'");
+	public MediaFileDTO save(MediaFileDTO mediafileDTO) {
+		LOG.debug("Request to save MediaFile: {}", mediafileDTO);
+		MediaFile mediafile = mediafileMapper.toEntity(mediafileDTO);
+		mediafile = mediafileRepository.save(mediafile);
+		return mediafileMapper.toDto(mediafile);
 	}
 
 	@Override
-	public MediaFileDTO update(MediaFileDTO mediaFileDTO) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'update'");
+	public MediaFileDTO update(MediaFileDTO mediafileDTO) {
+		LOG.debug("Request to update MediaFile: {}", mediafileDTO);
+		MediaFile mediafile = mediafileMapper.toEntity(mediafileDTO);
+		mediafile = mediafileRepository.save(mediafile);
+		return mediafileMapper.toDto(mediafile);
 	}
 
 	@Override
-	public MediaFileDTO partialUpdate(MediaFileDTO mediaFileDTO) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'partialUpdate'");
+	public MediaFileDTO partialUpdate(MediaFileDTO mediafileDTO) {
+		LOG.debug("Request to partically update MediaFile: {}", mediafileDTO);
+
+		return mediafileRepository
+				.findById(mediafileDTO.getId())
+				.map(existingMediaFile -> {
+					mediafileMapper.partialUpdate(existingMediaFile, mediafileDTO);
+					return existingMediaFile;
+				})
+				.map(mediafileRepository::save)
+				.map(mediafileMapper::toDto).orElse(null);
 	}
 
 	@Override
 	public Optional<MediaFileDTO> findById(Long id) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'findById'");
+		LOG.debug("Request to get MediaFile: {}", id);
+		return mediafileRepository.findById(id).map(mediafileMapper::toDto);
 	}
 
 	@Override
 	public List<MediaFileDTO> findAll() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'findAll'");
+		LOG.debug("Request to get all MediaFiles");
+		return mediafileRepository.findAll()
+				.stream().map(mediafileMapper::toDto)
+				.collect(Collectors.toList());
 	}
 
 	@Override
 	public void delete(Long id) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'delete'");
+		LOG.debug("Request to delete MediaFile: {}", id);
+		mediafileRepository.deleteById(id);
 	}
 
 }
