@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import pv.nedobezhkin.supcom.service.MediaFileService;
 import pv.nedobezhkin.supcom.service.dto.MediaFileDTO;
 
+//TODO сделать нормальную работу с файлами
 @RestController
 @RequestMapping("/api/mediafiles")
 @RequiredArgsConstructor
