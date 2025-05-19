@@ -11,6 +11,6 @@ public class MediaFileDTO {
 	private String name;
 	private FileType type;
 	private String path;
-	private Long postId;
+	private Long post;
 	private ZonedDateTime uploadedAt;
 }

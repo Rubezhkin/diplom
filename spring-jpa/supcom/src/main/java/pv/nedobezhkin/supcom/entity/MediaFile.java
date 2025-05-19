@@ -32,7 +32,7 @@ public class MediaFile {
 
 	@ManyToOne
 	@JoinColumn(name = "post_id", referencedColumnName = "id")
-	private Post postId;
+	private Post post;
 
 	@Column(name = "uploaded_at")
 	private ZonedDateTime uploadedAt;

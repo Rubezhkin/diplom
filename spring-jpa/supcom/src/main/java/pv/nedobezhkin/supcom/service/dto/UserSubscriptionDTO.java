@@ -7,7 +7,7 @@ import lombok.Data;
 public class UserSubscriptionDTO {
 	private Long id;
 	private Long user;
-	private Long subscriptionTier;
+	private Long tier;
 	private ZonedDateTime startDate;
 	private ZonedDateTime endDate;
 }

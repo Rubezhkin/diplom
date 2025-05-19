@@ -26,7 +26,7 @@ public class UserSubscription {
 
 	@ManyToOne
 	@JoinColumn(name = "subscription_id", referencedColumnName = "id")
-	private SubscriptionTier subscriptionTier;
+	private SubscriptionTier tier;
 
 	@Column(name = "start_date")
 	private ZonedDateTime startDate;
