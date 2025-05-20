@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -32,7 +33,7 @@ public class PostServiceImpl implements PostService {
 	private final SubscriptionTierRepository subscriptionTierRepository;
 
 	@Override
-	public PostDTO save(PostDTO postDTO) {
+	public PostDTO save(PostDTO postDTO) throws BadRequestException {
 		LOG.debug("Request to save Post: {}", postDTO);
 		Post post = postMapper.toEntity(postDTO);
 		Author author = authorRepository.findById(postDTO.getAuthor())
@@ -43,6 +44,8 @@ public class PostServiceImpl implements PostService {
 		else
 			tier = subscriptionTierRepository.findById(postDTO.getTier())
 					.orElseThrow(() -> new EntityNotFoundException("Tier not found"));
+		if (tier != null && !tier.getAuthor().equals(author))
+			throw new BadRequestException("the tier doesn't belong to the author");
 		post.setAuthor(author);
 		post.setTier(tier);
 		post.setCreationTime(ZonedDateTime.now());
@@ -51,7 +54,7 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
-	public PostDTO update(PostDTO postDTO) {
+	public PostDTO update(PostDTO postDTO) throws BadRequestException {
 		LOG.debug("Request to update Post: {}", postDTO);
 		Post post = postMapper.toEntity(postDTO);
 		Author author = authorRepository.findById(postDTO.getAuthor())
@@ -62,6 +65,8 @@ public class PostServiceImpl implements PostService {
 		else
 			tier = subscriptionTierRepository.findById(postDTO.getTier())
 					.orElseThrow(() -> new EntityNotFoundException("Tier not found"));
+		if (tier != null && !tier.getAuthor().equals(author))
+			throw new BadRequestException("the tier doesn't belong to the author");
 		post.setAuthor(author);
 		post.setTier(tier);
 		post = postRepository.save(post);
@@ -69,16 +74,28 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
-	public PostDTO partialUpdate(PostDTO postDTO) {
+	public PostDTO partialUpdate(PostDTO postDTO) throws BadRequestException {
 		LOG.debug("Request to partically update Post: {}", postDTO);
 
-		return postRepository
+		PostDTO result = postRepository
 				.findById(postDTO.getId())
 				.map(existingPost -> {
 					postMapper.partialUpdate(existingPost, postDTO);
 					return existingPost;
 				})
-				.map(postRepository::save)
+				.map(postMapper::toDto).orElse(null);
+		SubscriptionTier tier;
+		Author author = authorRepository.findById(result.getAuthor())
+				.orElseThrow(() -> new EntityNotFoundException("Author not found"));
+		if (result.getTier() == null)
+			tier = null;
+		else
+			tier = subscriptionTierRepository.findById(result.getTier())
+					.orElseThrow(() -> new EntityNotFoundException("Tier not found"));
+		if (tier != null && !tier.getAuthor().equals(author))
+			throw new BadRequestException("the tier doesn't belong to the author");
+
+		return postRepository.findById(result.getId()).map(postRepository::save)
 				.map(postMapper::toDto).orElse(null);
 	}
 

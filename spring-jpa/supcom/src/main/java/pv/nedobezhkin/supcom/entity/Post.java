@@ -29,7 +29,7 @@ public class Post {
 
 	@ManyToOne
 	@JoinColumn(name = "subscription_tier_id", referencedColumnName = "id")
-	SubscriptionTier tier;
+	private SubscriptionTier tier;
 
 	@Column(name = "creation_date")
 	private ZonedDateTime creationTime;

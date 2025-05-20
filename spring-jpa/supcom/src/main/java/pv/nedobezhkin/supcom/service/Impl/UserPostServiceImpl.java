@@ -8,9 +8,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import pv.nedobezhkin.supcom.entity.Post;
+import pv.nedobezhkin.supcom.entity.User;
 import pv.nedobezhkin.supcom.entity.UserPost;
+import pv.nedobezhkin.supcom.repository.PostRepository;
 import pv.nedobezhkin.supcom.repository.UserPostRepository;
+import pv.nedobezhkin.supcom.repository.UserRepository;
 import pv.nedobezhkin.supcom.service.UserPostService;
 import pv.nedobezhkin.supcom.service.dto.UserPostDTO;
 import pv.nedobezhkin.supcom.service.mapper.UserPostMapper;
@@ -21,11 +26,19 @@ public class UserPostServiceImpl implements UserPostService {
 	private static final Logger LOG = LoggerFactory.getLogger(UserPostServiceImpl.class);
 	private final UserPostRepository userPostRepository;
 	private final UserPostMapper userPostMapper;
+	private final UserRepository userRepository;
+	private final PostRepository postRepository;
 
 	@Override
 	public UserPostDTO save(UserPostDTO userPostDTO) {
 		LOG.debug("Request to save UserPost: {}", userPostDTO);
 		UserPost userPost = userPostMapper.toEntity(userPostDTO);
+		User user = userRepository.findById(userPostDTO.getUser())
+				.orElseThrow(() -> new EntityNotFoundException("user not found"));
+		Post post = postRepository.findById(userPostDTO.getPost())
+				.orElseThrow(() -> new EntityNotFoundException("post not found"));
+		userPost.setUser(user);
+		userPost.setPost(post);
 		userPost = userPostRepository.save(userPost);
 		return userPostMapper.toDto(userPost);
 	}
@@ -34,6 +47,12 @@ public class UserPostServiceImpl implements UserPostService {
 	public UserPostDTO update(UserPostDTO userPostDTO) {
 		LOG.debug("Request to update UserPost: {}", userPostDTO);
 		UserPost userPost = userPostMapper.toEntity(userPostDTO);
+		User user = userRepository.findById(userPostDTO.getUser())
+				.orElseThrow(() -> new EntityNotFoundException("user not found"));
+		Post post = postRepository.findById(userPostDTO.getPost())
+				.orElseThrow(() -> new EntityNotFoundException("post not found"));
+		userPost.setUser(user);
+		userPost.setPost(post);
 		userPost = userPostRepository.save(userPost);
 		return userPostMapper.toDto(userPost);
 	}

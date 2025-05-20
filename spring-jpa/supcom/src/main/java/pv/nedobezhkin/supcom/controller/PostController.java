@@ -31,7 +31,7 @@ public class PostController {
 	private final PostService postService;
 
 	@PostMapping("")
-	public ResponseEntity<PostDTO> createPost(@Valid @RequestBody PostDTO postDTO) {
+	public ResponseEntity<PostDTO> createPost(@Valid @RequestBody PostDTO postDTO) throws BadRequestException {
 		LOG.debug("REST request to save Post: {}", postDTO);
 		PostDTO result = postService.save(postDTO);
 		return ResponseEntity.ok().body(result);

@@ -26,6 +26,7 @@ import pv.nedobezhkin.supcom.service.dto.UserDTO;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
+// TODO сделать норм безопасность
 public class UserController {
 	private static final Logger LOG = LoggerFactory.getLogger(UserController.class);
 	private final UserService userService;

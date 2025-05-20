@@ -8,8 +8,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import pv.nedobezhkin.supcom.entity.SubscriptionTier;
+import pv.nedobezhkin.supcom.entity.User;
 import pv.nedobezhkin.supcom.entity.UserSubscription;
+import pv.nedobezhkin.supcom.repository.SubscriptionTierRepository;
+import pv.nedobezhkin.supcom.repository.UserRepository;
 import pv.nedobezhkin.supcom.repository.UserSubscriptionRepository;
 import pv.nedobezhkin.supcom.service.UserSubscriptionService;
 import pv.nedobezhkin.supcom.service.dto.UserSubscriptionDTO;
@@ -22,21 +27,35 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
 	private static final Logger LOG = LoggerFactory.getLogger(UserSubscriptionServiceImpl.class);
 	private final UserSubscriptionRepository userSubscriptionRepository;
 	private final UserSubscriptionMapper userSubscriptionMapper;
+	private final UserRepository userRepository;
+	private final SubscriptionTierRepository subscriptionTierRepository;
 
 	@Override
 	public UserSubscriptionDTO save(UserSubscriptionDTO userSubscriptionDTO) {
 		LOG.debug("Request to save UserSubscription: {}", userSubscriptionDTO);
 		UserSubscription userSubscription = userSubscriptionMapper.toEntity(userSubscriptionDTO);
+		User user = userRepository.findById(userSubscriptionDTO.getUser())
+				.orElseThrow(() -> new EntityNotFoundException("user not found"));
+		SubscriptionTier subscriptionTier = subscriptionTierRepository.findById(userSubscriptionDTO.getTier())
+				.orElseThrow(() -> new EntityNotFoundException("subscription not found"));
+		userSubscription.setUser(user);
+		userSubscription.setTier(subscriptionTier);
 		userSubscription = userSubscriptionRepository.save(userSubscription);
 		return userSubscriptionMapper.toDto(userSubscription);
 	}
 
 	@Override
-	public UserSubscriptionDTO update(UserSubscriptionDTO usersubscriptionDTO) {
-		LOG.debug("Request to update UserSubscription: {}", usersubscriptionDTO);
-		UserSubscription usersubscription = userSubscriptionMapper.toEntity(usersubscriptionDTO);
-		usersubscription = userSubscriptionRepository.save(usersubscription);
-		return userSubscriptionMapper.toDto(usersubscription);
+	public UserSubscriptionDTO update(UserSubscriptionDTO userSubscriptionDTO) {
+		LOG.debug("Request to update UserSubscription: {}", userSubscriptionDTO);
+		UserSubscription userSubscription = userSubscriptionMapper.toEntity(userSubscriptionDTO);
+		User user = userRepository.findById(userSubscriptionDTO.getUser())
+				.orElseThrow(() -> new EntityNotFoundException("user not found"));
+		SubscriptionTier subscriptionTier = subscriptionTierRepository.findById(userSubscriptionDTO.getTier())
+				.orElseThrow(() -> new EntityNotFoundException("subscription not found"));
+		userSubscription.setUser(user);
+		userSubscription.setTier(subscriptionTier);
+		userSubscription = userSubscriptionRepository.save(userSubscription);
+		return userSubscriptionMapper.toDto(userSubscription);
 	}
 
 	@Override
