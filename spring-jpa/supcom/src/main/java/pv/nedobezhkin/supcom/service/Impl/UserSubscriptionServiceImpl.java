@@ -4,15 +4,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import pv.nedobezhkin.supcom.entity.Author;
 import pv.nedobezhkin.supcom.entity.SubscriptionTier;
 import pv.nedobezhkin.supcom.entity.User;
 import pv.nedobezhkin.supcom.entity.UserSubscription;
+import pv.nedobezhkin.supcom.repository.AuthorRepository;
 import pv.nedobezhkin.supcom.repository.SubscriptionTierRepository;
 import pv.nedobezhkin.supcom.repository.UserRepository;
 import pv.nedobezhkin.supcom.repository.UserSubscriptionRepository;
@@ -29,15 +32,21 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
 	private final UserSubscriptionMapper userSubscriptionMapper;
 	private final UserRepository userRepository;
 	private final SubscriptionTierRepository subscriptionTierRepository;
+	private final AuthorRepository authorRepository;
 
 	@Override
-	public UserSubscriptionDTO save(UserSubscriptionDTO userSubscriptionDTO) {
+	public UserSubscriptionDTO save(UserSubscriptionDTO userSubscriptionDTO) throws BadRequestException {
 		LOG.debug("Request to save UserSubscription: {}", userSubscriptionDTO);
 		UserSubscription userSubscription = userSubscriptionMapper.toEntity(userSubscriptionDTO);
 		User user = userRepository.findById(userSubscriptionDTO.getUser())
 				.orElseThrow(() -> new EntityNotFoundException("user not found"));
 		SubscriptionTier subscriptionTier = subscriptionTierRepository.findById(userSubscriptionDTO.getTier())
 				.orElseThrow(() -> new EntityNotFoundException("subscription not found"));
+		Author author = authorRepository.findById(subscriptionTier.getAuthor().getId())
+				.orElseThrow(() -> new EntityNotFoundException("author not found"));
+		if (author.getOwner().equals(user)) {
+			throw new BadRequestException("user - owner of this tier");
+		}
 		userSubscription.setUser(user);
 		userSubscription.setTier(subscriptionTier);
 		userSubscription = userSubscriptionRepository.save(userSubscription);
@@ -45,13 +54,18 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
 	}
 
 	@Override
-	public UserSubscriptionDTO update(UserSubscriptionDTO userSubscriptionDTO) {
+	public UserSubscriptionDTO update(UserSubscriptionDTO userSubscriptionDTO) throws BadRequestException {
 		LOG.debug("Request to update UserSubscription: {}", userSubscriptionDTO);
 		UserSubscription userSubscription = userSubscriptionMapper.toEntity(userSubscriptionDTO);
 		User user = userRepository.findById(userSubscriptionDTO.getUser())
 				.orElseThrow(() -> new EntityNotFoundException("user not found"));
 		SubscriptionTier subscriptionTier = subscriptionTierRepository.findById(userSubscriptionDTO.getTier())
 				.orElseThrow(() -> new EntityNotFoundException("subscription not found"));
+		Author author = authorRepository.findById(subscriptionTier.getAuthor().getId())
+				.orElseThrow(() -> new EntityNotFoundException("author not found"));
+		if (author.getOwner().equals(user)) {
+			throw new BadRequestException("user - owner of this tier");
+		}
 		userSubscription.setUser(user);
 		userSubscription.setTier(subscriptionTier);
 		userSubscription = userSubscriptionRepository.save(userSubscription);
@@ -59,16 +73,27 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
 	}
 
 	@Override
-	public UserSubscriptionDTO partialUpdate(UserSubscriptionDTO usersubscriptionDTO) {
+	public UserSubscriptionDTO partialUpdate(UserSubscriptionDTO usersubscriptionDTO) throws BadRequestException {
 		LOG.debug("Request to partically update UserSubscription: {}", usersubscriptionDTO);
 
-		return userSubscriptionRepository
+		UserSubscriptionDTO result = userSubscriptionRepository
 				.findById(usersubscriptionDTO.getId())
 				.map(existingUserSubscription -> {
 					userSubscriptionMapper.partialUpdate(existingUserSubscription, usersubscriptionDTO);
 					return existingUserSubscription;
-				})
-				.map(userSubscriptionRepository::save)
+				}).map(userSubscriptionMapper::toDto)
+				.orElse(null);
+		User user = userRepository.findById(result.getUser())
+				.orElseThrow(() -> new EntityNotFoundException("user not found"));
+		SubscriptionTier subscriptionTier = subscriptionTierRepository.findById(result.getTier())
+				.orElseThrow(() -> new EntityNotFoundException("subscription not found"));
+		Author author = authorRepository.findById(subscriptionTier.getAuthor().getId())
+				.orElseThrow(() -> new EntityNotFoundException("author not found"));
+		if (author.getOwner().equals(user)) {
+			throw new BadRequestException("user - owner of this tier");
+		}
+		return result = userSubscriptionRepository
+				.findById(result.getId()).map(userSubscriptionRepository::save)
 				.map(userSubscriptionMapper::toDto).orElse(null);
 	}
 

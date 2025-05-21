@@ -130,5 +130,22 @@ public class TierTierServiceImpl implements TierTierService {
 				}
 			}
 		}
+
+		queue.add(child);
+
+		while (!queue.isEmpty()) {
+			SubscriptionTier current = queue.poll();
+
+			if (current.equals(parent)) {
+				throw new BadRequestException("Cycle detected in tier hierarchy");
+			}
+
+			if (visited.add(current.getId())) {
+				List<TierTier> parentRelations = tierTierRepository.findByChildTier(current);
+				for (TierTier relation : parentRelations) {
+					queue.add(relation.getParentTier());
+				}
+			}
+		}
 	}
 }
