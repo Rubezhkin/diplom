@@ -100,4 +100,9 @@ public class UserServiceImpl implements UserService {
 		userRepository.deleteById(id);
 	}
 
+	@Override
+	public Optional<UserDTO> findByUsername(String username) {
+		return userRepository.findByUsername(username).map(userMapper::toDto);
+	}
+
 }

@@ -6,7 +6,11 @@ import java.util.Objects;
 import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Role;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -20,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import pv.nedobezhkin.supcom.entity.User;
 import pv.nedobezhkin.supcom.service.UserService;
 import pv.nedobezhkin.supcom.service.dto.UserDTO;
 
@@ -38,6 +43,7 @@ public class UserController {
 		return ResponseEntity.ok().body(result);
 	}
 
+	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("")
 	public ResponseEntity<List<UserDTO>> getAllUsers() {
 		LOG.debug("REST request to get all Users");
@@ -49,6 +55,12 @@ public class UserController {
 	public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
 		LOG.debug("REST request to get User: {}", id);
 		UserDTO result = userService.findById(id).orElse(null);
+		return ResponseEntity.ok().body(result);
+	}
+
+	@GetMapping("/me")
+	public ResponseEntity<UserDTO> getUserById(@AuthenticationPrincipal User user) {
+		UserDTO result = userService.findById(user.getId()).orElse(null);
 		return ResponseEntity.ok().body(result);
 	}
 

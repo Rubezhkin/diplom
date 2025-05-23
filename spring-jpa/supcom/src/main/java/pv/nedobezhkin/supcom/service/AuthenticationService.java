@@ -72,7 +72,6 @@ public class AuthenticationService {
 	}
 
 	public AuthenticationResponseDto authenticate(LoginRequestDto request) {
-		System.out.println("Сработал метод в сервисе");
 		authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(
 						request.getUsername(),
@@ -80,7 +79,6 @@ public class AuthenticationService {
 
 		User user = userRepository.findByUsername(request.getUsername())
 				.orElseThrow(() -> new UsernameNotFoundException("User not found"));
-		System.out.println("нашел пользователя " + user.getId());
 		String accessToken = jwtService.generateAccessToken(user);
 		String refreshToken = jwtService.generateRefreshToken(user);
 
