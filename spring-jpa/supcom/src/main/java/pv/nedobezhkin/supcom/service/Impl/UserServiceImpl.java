@@ -6,6 +6,8 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,32 @@ public class UserServiceImpl implements UserService {
 	private static final Logger LOG = LoggerFactory.getLogger(UserServiceImpl.class);
 	private final UserRepository userRepository;
 	private final UserMapper userMapper;
+
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		// Поиск пользователя в репозитории
+		return userRepository.findByUsername(username)
+				// Если пользователь не найден, выбрасываем исключение
+				.orElseThrow(() -> new UsernameNotFoundException("Пользователь с именем " + username + " не найден"));
+	}
+
+	@Override
+	public boolean existsByUsername(String username) {
+		User user = userRepository.findByUsername(username).orElse(null);
+		if (user != null) {
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean existsByEmail(String email) {
+		User user = userRepository.findByEmail(email).orElse(null);
+		if (user != null) {
+			return true;
+		}
+		return false;
+	}
 
 	@Override
 	public UserDTO save(UserDTO userDTO) {
