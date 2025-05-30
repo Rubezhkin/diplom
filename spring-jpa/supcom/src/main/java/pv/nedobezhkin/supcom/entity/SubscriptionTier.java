@@ -2,6 +2,9 @@ package pv.nedobezhkin.supcom.entity;
 
 import java.math.BigDecimal;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -21,6 +24,7 @@ public class SubscriptionTier {
 	private Long id;
 
 	@ManyToOne
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	@JoinColumn(name = "author_id", referencedColumnName = "id", nullable = false)
 	private Author author;
 

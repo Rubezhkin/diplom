@@ -10,7 +10,7 @@ import pv.nedobezhkin.supcom.service.dto.UserPostDTO;
 public interface UserPostService {
 	UserPostDTO save(Long postId, User user) throws BadRequestException;
 
-	void delete(Long id, User user);
+	void delete(Long id, User user) throws BadRequestException;
 
 	public List<UserPostDTO> findByUser(User user);
 }

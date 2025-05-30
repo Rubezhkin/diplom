@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class UserServiceImpl implements UserService {
 	private static final Logger LOG = LoggerFactory.getLogger(UserServiceImpl.class);
 	private final UserRepository userRepository;
 	private final UserMapper userMapper;
+	private final PasswordEncoder passwordEncoder;
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -51,11 +53,13 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public UserDTO partialUpdate(UserDTO userDTO) {
+	public UserDTO partialUpdate(UserDTO userDTO, User user) {
 		LOG.debug("Request to partically update User: {}", userDTO);
-
+		if (userDTO.getPassword() != null) {
+			userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+		}
 		return userRepository
-				.findById(userDTO.getId())
+				.findById(user.getId())
 				.map(existingUser -> {
 					userMapper.partialUpdate(existingUser, userDTO);
 					return existingUser;
@@ -79,9 +83,9 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public void delete(Long id) {
-		LOG.debug("Request to delete User: {}", id);
-		userRepository.deleteById(id);
+	public void delete(User user) {
+		LOG.debug("Request to delete User: {}", user);
+		userRepository.deleteById(user.getId());
 	}
 
 	@Override

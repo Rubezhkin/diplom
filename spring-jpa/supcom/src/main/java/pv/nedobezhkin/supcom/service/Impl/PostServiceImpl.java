@@ -118,13 +118,15 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
-	public void delete(Long id, User user) {
+	public void delete(Long id, User user) throws BadRequestException {
 		LOG.debug("Request to delete Post: {}", id);
 		Post post = postRepository.findById(id)
 				.orElseThrow(() -> new EntityNotFoundException("post not found"));
 		Author author = authorRepository.findByOwner(user).orElse(null);
 		if (post.getAuthor().getId().equals(author.getId()))
-			subscriptionTierRepository.deleteById(id);
+			postRepository.deleteById(id);
+		else
+			throw new BadRequestException("it's not user's post");
 	}
 
 }

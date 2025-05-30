@@ -36,7 +36,7 @@ public class UserPostController {
 			UserPostDTO result = userPostService.save(postId, user);
 			return ResponseEntity.ok(result);
 		} catch (IllegalArgumentException e) {
-			return ResponseEntity.badRequest().header(e.getMessage()).body(null);
+			return ResponseEntity.badRequest().header(e.getMessage()).build();
 		}
 	}
 
@@ -47,8 +47,14 @@ public class UserPostController {
 	}
 
 	@DeleteMapping("/{postId}")
-	public ResponseEntity<Void> delete(@PathVariable Long postId, @AuthenticationPrincipal User user) {
-		userPostService.delete(postId, user);
-		return ResponseEntity.noContent().build();
+	public ResponseEntity<Void> delete(@PathVariable Long postId, @AuthenticationPrincipal User user)
+			throws BadRequestException {
+		try {
+			userPostService.delete(postId, user);
+			return ResponseEntity.noContent().build();
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().header(e.getMessage()).build();
+		}
+
 	}
 }

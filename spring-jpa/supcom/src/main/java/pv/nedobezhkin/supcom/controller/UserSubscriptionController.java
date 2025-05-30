@@ -25,14 +25,20 @@ public class UserSubscriptionController {
 		return ResponseEntity.ok().body(result);
 	}
 
-	@GetMapping
+	@GetMapping("")
 	public List<UserSubscriptionDTO> getUsersSubscription(@AuthenticationPrincipal User user) {
 		return userSubscriptionService.findByUser(user);
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> delete(@PathVariable Long id, @AuthenticationPrincipal User user) {
-		userSubscriptionService.delete(id, user);
-		return ResponseEntity.noContent().build();
+	public ResponseEntity<Void> delete(@PathVariable Long id, @AuthenticationPrincipal User user)
+			throws BadRequestException {
+		try {
+			userSubscriptionService.delete(id, user);
+			return ResponseEntity.noContent().build();
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().header(e.getMessage()).build();
+		}
+
 	}
 }

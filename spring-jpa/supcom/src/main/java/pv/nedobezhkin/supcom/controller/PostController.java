@@ -66,16 +66,26 @@ public class PostController {
 			throw new BadRequestException("id not found");
 		}
 		postDTO.setId(id);
-		PostDTO result = postService.partialUpdate(postDTO, user);
+		try {
+			PostDTO result = postService.partialUpdate(postDTO, user);
 
-		return ResponseEntity.ok().body(result);
+			return ResponseEntity.ok().body(result);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().header(e.getMessage()).build();
+		}
+
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> deletePost(@PathVariable Long id, @AuthenticationPrincipal User user) {
+	public ResponseEntity<Void> deletePost(@PathVariable Long id, @AuthenticationPrincipal User user)
+			throws BadRequestException {
 		LOG.debug("REST request to delete post: {}", id);
-		postService.delete(id, user);
-		return ResponseEntity.noContent().build();
+		try {
+			postService.delete(id, user);
+			return ResponseEntity.noContent().build();
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().header(e.getMessage()).build();
+		}
 	}
 
 }

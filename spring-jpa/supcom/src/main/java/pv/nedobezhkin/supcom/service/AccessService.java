@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import pv.nedobezhkin.supcom.entity.Author;
 import pv.nedobezhkin.supcom.entity.Post;
 import pv.nedobezhkin.supcom.entity.SubscriptionTier;
 import pv.nedobezhkin.supcom.entity.TierTier;
@@ -35,7 +36,12 @@ public class AccessService {
 			return true;
 		}
 
-		if (post.getAuthor().getId().equals(authorRepository.findByOwner(user).orElse(null).getId())) {
+		if (post.getTier() == null && post.getPrice() == null) {
+			return true;
+		}
+
+		Author authorOpt = authorRepository.findByOwner(user).orElse(null);
+		if (authorOpt != null && post.getAuthor().getId().equals(authorOpt.getId())) {
 			return true;
 		}
 
@@ -46,9 +52,8 @@ public class AccessService {
 
 		SubscriptionTier postTier = post.getTier();
 		List<SubscriptionTier> userTiers = userSubscriptionRepository
-				.findAllByUser(user)
+				.findAllByUserAndEndDateAfter(user, ZonedDateTime.now())
 				.stream()
-				.filter(us -> us.getEndDate().isAfter(ZonedDateTime.now()))
 				.map(UserSubscription::getTier)
 				.collect(Collectors.toList());
 
@@ -61,14 +66,13 @@ public class AccessService {
 	}
 
 	private void collectAccessibleTiers(SubscriptionTier current, Set<SubscriptionTier> result, Set<Long> visited) {
-		if (current == null || visited.contains(current.getId()))
+		if (current == null || !visited.add(current.getId()))
 			return;
 
-		visited.add(current.getId());
 		result.add(current);
 
-		List<TierTier> inherited = tierTierRepository.findByParentTier(current);
-		for (TierTier relation : inherited) {
+		List<TierTier> children = tierTierRepository.findByParentTier(current);
+		for (TierTier relation : children) {
 			collectAccessibleTiers(relation.getChildTier(), result, visited);
 		}
 	}

@@ -79,12 +79,14 @@ public class UserPostServiceImpl implements UserPostService {
 	}
 
 	@Override
-	public void delete(Long id, User user) {
+	public void delete(Long id, User user) throws BadRequestException {
 		LOG.debug("Request to delete UserPost: {}", id);
 		UserPost userPost = userPostRepository.findById(id)
 				.orElseThrow(() -> new EntityNotFoundException("userPost not found"));
 		if (userPost.getUser().getId().equals(user.getId()))
 			userPostRepository.deleteById(id);
+		else
+			throw new BadRequestException("it not user's userPost");
 	}
 
 }

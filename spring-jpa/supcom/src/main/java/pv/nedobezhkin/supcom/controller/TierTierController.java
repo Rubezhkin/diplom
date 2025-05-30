@@ -51,7 +51,7 @@ public class TierTierController {
 			TierTierService.delete(id, user);
 			return ResponseEntity.noContent().build();
 		} catch (Exception e) {
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.badRequest().header(e.getMessage()).build();
 		}
 
 	}

@@ -1,5 +1,8 @@
 package pv.nedobezhkin.supcom.entity;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,10 +21,12 @@ public class TierTier {
 	private Long id;
 
 	@ManyToOne
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	@JoinColumn(name = "parent_id", referencedColumnName = "id", nullable = false)
 	private SubscriptionTier parentTier;
 
 	@ManyToOne
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	@JoinColumn(name = "child_id", referencedColumnName = "id", nullable = false)
 	private SubscriptionTier childTier;
 }

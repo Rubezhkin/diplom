@@ -12,5 +12,5 @@ public interface UserSubscriptionService {
 
 	List<UserSubscriptionDTO> findByUser(User user);
 
-	void delete(Long id, User user);
+	void delete(Long id, User user) throws BadRequestException;
 }

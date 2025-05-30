@@ -51,15 +51,25 @@ public class SubscriptionTierController {
 	@GetMapping("/author/{id}")
 	public ResponseEntity<List<SubscriptionTierDTO>> getAuthorsTiers(@PathVariable Long id) {
 		LOG.debug("REST request to get SubscriptionTier by author : {}", id);
-		List<SubscriptionTierDTO> result = subscriptiontierService.findAllByAuthor(id);
-		return ResponseEntity.ok().body(result);
+		try {
+			List<SubscriptionTierDTO> result = subscriptiontierService.findAllByAuthor(id);
+			return ResponseEntity.ok().body(result);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().header(e.getMessage()).build();
+		}
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> deleteSubscriptionTier(@PathVariable Long id, @AuthenticationPrincipal User user) {
+	public ResponseEntity<Void> deleteSubscriptionTier(@PathVariable Long id, @AuthenticationPrincipal User user)
+			throws BadRequestException {
 		LOG.debug("REST request to delete subscriptiontier: {}", id);
-		subscriptiontierService.delete(id, user);
-		return ResponseEntity.noContent().build();
+		try {
+			subscriptiontierService.delete(id, user);
+			return ResponseEntity.noContent().build();
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().header(e.getMessage()).build();
+		}
+
 	}
 
 }

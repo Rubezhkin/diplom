@@ -17,16 +17,18 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 			SELECT DISTINCT p FROM Post p
 			 WHERE
 			     p.author IN (
-			         SELECT st.author FROM UserSubscription us
-			         JOIN us.tier st
+			         SELECT us.tier.author FROM UserSubscription us
 			         WHERE us.user = :user
-			         AND (us.endDate IS NULL OR us.endDate > CURRENT_TIMESTAMP)
+			           AND (us.endDate IS NULL OR us.endDate > CURRENT_TIMESTAMP)
 			     )
-			     OR p.author IN (
+			     OR
+			     p.author IN (
 			         SELECT up.post.author FROM UserPost up
 			         WHERE up.user = :user
 			     )
-			 ORDER BY p.creationTime DESC
+			     OR
+			     p.author.owner = :user
+				ORDER by p.creationTime DESC
 			""")
 	List<Post> findPostBySubscriptions(User user);
 }

@@ -32,6 +32,7 @@ public class SecurityConfig {
 	private final UserService userService;
 	private final CustomAccessDeniedHandler accessDeniedHandler;
 	private final CustomLogoutHandler customLogoutHandler;
+	private final PasswordEncoder passwordEncoder;
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -55,11 +56,6 @@ public class SecurityConfig {
 							(request, response, authentication) -> SecurityContextHolder.clearContext());
 				});
 		return http.build();
-	}
-
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
 	}
 
 	@Bean

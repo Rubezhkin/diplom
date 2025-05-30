@@ -75,19 +75,20 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
 	@Override
 	public List<UserSubscriptionDTO> findByUser(User user) {
 		LOG.debug("Request to get all UserSubscriptions");
-		return userSubscriptionRepository.findAllByUser(user)
+		return userSubscriptionRepository.findAllByUserAndEndDateAfter(user, ZonedDateTime.now())
 				.stream().map(userSubscriptionMapper::toDto)
 				.collect(Collectors.toList());
 	}
 
 	@Override
-	public void delete(Long id, User user) {
+	public void delete(Long id, User user) throws BadRequestException {
 		LOG.debug("Request to delete UserSubscription: {}", id);
 		UserSubscription userSubscription = userSubscriptionRepository.findById(id)
 				.orElseThrow(() -> new EntityNotFoundException("userSub not found"));
 		if (user.isAdmin() || userSubscription.getUser().getId().equals(user.getId())) {
 			userSubscriptionRepository.deleteById(id);
-		}
+		} else
+			throw new BadRequestException("it not user's userSubscription");
 	}
 
 	public boolean hasActiveSubscription(User user, SubscriptionTier tier) {

@@ -40,23 +40,29 @@ public class AuthorController {
 	}
 
 	@PatchMapping("/{id}")
-	public ResponseEntity<AuthorDTO> partialUpdateAuthor(@PathVariable Long id,
+	public ResponseEntity<AuthorDTO> partialUpdateAuthor(
 			@NotNull @RequestBody AuthorDTO authorDTO, @AuthenticationPrincipal User user) throws BadRequestException {
-		LOG.debug("REST request to patch Author: {} {}", id, authorDTO);
-		if (authorService.findById(id) == null) {
-			throw new BadRequestException("id not found");
-		}
-		authorDTO.setId(id);
-		AuthorDTO result = authorService.partialUpdate(authorDTO, user);
+		LOG.debug("REST request to patch Author: {} {}", user, authorDTO);
+		try {
+			AuthorDTO result = authorService.partialUpdate(authorDTO, user);
 
-		return ResponseEntity.ok().body(result);
+			return ResponseEntity.ok().body(result);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().header(e.getMessage()).build();
+		}
+
 	}
 
 	@DeleteMapping("")
 	public ResponseEntity<Void> deleteAuthor(@AuthenticationPrincipal User user) {
 		LOG.debug("REST request to delete author: {}", user);
-		authorService.delete(user);
-		return ResponseEntity.noContent().build();
+		try {
+			authorService.delete(user);
+			return ResponseEntity.noContent().build();
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().header(e.getMessage()).build();
+		}
+
 	}
 
 }

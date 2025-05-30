@@ -65,12 +65,14 @@ public class SubscriptionTierServiceImpl implements SubscriptionTierService {
 	}
 
 	@Override
-	public void delete(Long id, User user) {
+	public void delete(Long id, User user) throws BadRequestException {
 		LOG.debug("Request to delete SubscriptionTier: {}", id);
 		SubscriptionTier tier = subscriptionTierRepository.findById(id)
 				.orElseThrow(() -> new EntityNotFoundException("tier not found"));
 		Author author = authorRepository.findByOwner(user).orElse(null);
 		if (tier.getAuthor().getId().equals(author.getId()))
 			subscriptionTierRepository.deleteById(id);
+		else
+			throw new BadRequestException("it not user's tier");
 	}
 }

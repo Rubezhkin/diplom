@@ -14,5 +14,5 @@ public interface SubscriptionTierService {
 
 	public List<SubscriptionTierDTO> findAllByAuthor(Long id);
 
-	void delete(Long id, User suer);
+	void delete(Long id, User suer) throws BadRequestException;
 }

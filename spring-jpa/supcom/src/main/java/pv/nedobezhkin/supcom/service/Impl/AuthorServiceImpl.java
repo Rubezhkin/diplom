@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import pv.nedobezhkin.supcom.entity.Author;
 import pv.nedobezhkin.supcom.entity.User;
@@ -33,6 +34,8 @@ public class AuthorServiceImpl implements AuthorService {
 	@Override
 	public AuthorDTO partialUpdate(AuthorDTO authorDTO, User user) {
 		LOG.debug("Request to partically update Author: {}", authorDTO);
+		authorRepository.findByOwner(user)
+				.orElseThrow(() -> new EntityNotFoundException("author not found"));
 		return authorRepository
 				.findByOwner(user)
 				.map(existingAuthor -> {
@@ -52,7 +55,9 @@ public class AuthorServiceImpl implements AuthorService {
 	@Override
 	public void delete(User user) {
 		LOG.debug("Request to delete Author: {}", user);
-		authorRepository.deleteByOwner(user);
+		Author author = authorRepository.findByOwner(user)
+				.orElseThrow(() -> new EntityNotFoundException("author not found"));
+		authorRepository.delete(author);
 	}
 
 }

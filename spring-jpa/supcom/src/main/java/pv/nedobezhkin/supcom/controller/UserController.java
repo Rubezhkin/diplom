@@ -38,6 +38,7 @@ public class UserController {
 		return ResponseEntity.ok().body(result);
 	}
 
+	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/{id}")
 	public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
 		LOG.debug("REST request to get User: {}", id);
@@ -58,27 +59,25 @@ public class UserController {
 		UserDTO userDTO = new UserDTO();
 		userDTO.setBalance(sum.getSum().add(user.getBalance()));
 		userDTO.setId(user.getId());
-		UserDTO result = userService.partialUpdate(userDTO);
+		UserDTO result = userService.partialUpdate(userDTO, user);
 
 		return ResponseEntity.ok().body(result);
 	}
 
-	@PatchMapping("/{id}")
-	public ResponseEntity<UserDTO> partialUpdateUser(@PathVariable Long id,
-			@NotNull @RequestBody UserDTO userDTO) throws BadRequestException {
-		LOG.debug("REST request to patch User: {} {}", id, userDTO);
-		if (userService.findById(id) == null) {
-			throw new BadRequestException("id not found");
-		}
-		UserDTO result = userService.partialUpdate(userDTO);
+	@PatchMapping("")
+	public ResponseEntity<UserDTO> partialUpdateUser(
+			@NotNull @RequestBody UserDTO userDTO, @AuthenticationPrincipal User user) throws BadRequestException {
+		LOG.debug("REST request to patch User: {} {}", user, userDTO);
+
+		UserDTO result = userService.partialUpdate(userDTO, user);
 
 		return ResponseEntity.ok().body(result);
 	}
 
-	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-		LOG.debug("REST request to delete user: {}", id);
-		userService.delete(id);
+	@DeleteMapping("")
+	public ResponseEntity<Void> deleteUser(@AuthenticationPrincipal User user) {
+		LOG.debug("REST request to delete user: {}", user);
+		userService.delete(user);
 		return ResponseEntity.noContent().build();
 	}
 }

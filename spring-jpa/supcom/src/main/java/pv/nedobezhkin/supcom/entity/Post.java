@@ -3,6 +3,9 @@ package pv.nedobezhkin.supcom.entity;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -25,10 +28,12 @@ public class Post {
 	private String title;
 
 	@ManyToOne
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	@JoinColumn(name = "author_id", referencedColumnName = "id", nullable = false)
 	private Author author;
 
 	@ManyToOne
+	@OnDelete(action = OnDeleteAction.SET_NULL)
 	@JoinColumn(name = "subscription_tier_id", referencedColumnName = "id")
 	private SubscriptionTier tier;
 

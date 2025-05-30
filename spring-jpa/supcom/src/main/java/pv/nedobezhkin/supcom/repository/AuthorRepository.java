@@ -12,5 +12,5 @@ import pv.nedobezhkin.supcom.entity.User;
 public interface AuthorRepository extends JpaRepository<Author, Long> {
 	Optional<Author> findByOwner(User owner);
 
-	void deleteByOwner(User owner);
+	void deleteByOwnerId(Long id);
 }

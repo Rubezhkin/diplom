@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
 
+import pv.nedobezhkin.supcom.entity.User;
 import pv.nedobezhkin.supcom.service.dto.UserDTO;
 
 public interface UserService extends UserDetailsService {
@@ -13,7 +14,7 @@ public interface UserService extends UserDetailsService {
 
 	boolean existsByEmail(String email);
 
-	UserDTO partialUpdate(UserDTO userDTO);
+	UserDTO partialUpdate(UserDTO userDTO, User user);
 
 	Optional<UserDTO> findById(Long id);
 
@@ -21,5 +22,5 @@ public interface UserService extends UserDetailsService {
 
 	List<UserDTO> findAll();
 
-	void delete(Long id);
+	void delete(User user);
 }
