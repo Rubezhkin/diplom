@@ -11,17 +11,17 @@ import lombok.Data;
 
 @Entity
 @Data
-@Table(name = "user_table")
+@Table(name = "user_post")
 public class UserPost {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	@ManyToOne
-	@JoinColumn(name = "user_id", referencedColumnName = "id")
+	@JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
 	private User user;
 
 	@ManyToOne
-	@JoinColumn(name = "post_id", referencedColumnName = "id")
+	@JoinColumn(name = "post_id", referencedColumnName = "id", nullable = false)
 	private Post post;
 }

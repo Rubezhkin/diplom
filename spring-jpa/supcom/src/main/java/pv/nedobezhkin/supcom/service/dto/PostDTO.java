@@ -1,5 +1,6 @@
 package pv.nedobezhkin.supcom.service.dto;
 
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 
 import lombok.Data;
@@ -11,4 +12,6 @@ public class PostDTO {
 	private Long author;
 	private Long tier;
 	private ZonedDateTime creationTime;
+	private BigDecimal price;
+	private String content;
 }

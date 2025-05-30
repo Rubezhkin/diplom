@@ -11,10 +11,17 @@ import pv.nedobezhkin.supcom.service.dto.PostDTO;
 @Mapper(componentModel = "spring")
 public interface PostMapper extends EntityMapper<PostDTO, Post> {
 
-	@Mapping(source = "author.id", target = "author")
-	@Mapping(source = "tier.id", target = "tier")
-	@Override
-	PostDTO toDto(Post entity);
+	default PostDTO toDto(Post entity, boolean access) {
+		PostDTO dto = new PostDTO();
+		dto.setAuthor(entity.getAuthor().getId());
+		dto.setContent(access ? entity.getContent() : "no access");
+		dto.setCreationTime(entity.getCreationTime());
+		dto.setId(entity.getId());
+		dto.setPrice(entity.getPrice());
+		dto.setTier(entity.getTier().getId());
+		dto.setTitle(entity.getTitle());
+		return dto;
+	}
 
 	@Mapping(target = "author", ignore = true)
 	@Mapping(target = "tier")

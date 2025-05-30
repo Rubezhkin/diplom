@@ -1,9 +1,9 @@
 package pv.nedobezhkin.supcom.service.Impl;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -12,6 +12,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import pv.nedobezhkin.supcom.entity.Author;
 import pv.nedobezhkin.supcom.entity.SubscriptionTier;
+import pv.nedobezhkin.supcom.entity.User;
 import pv.nedobezhkin.supcom.repository.AuthorRepository;
 import pv.nedobezhkin.supcom.repository.SubscriptionTierRepository;
 import pv.nedobezhkin.supcom.service.SubscriptionTierService;
@@ -28,10 +29,10 @@ public class SubscriptionTierServiceImpl implements SubscriptionTierService {
 	private final AuthorRepository authorRepository;
 
 	@Override
-	public SubscriptionTierDTO save(SubscriptionTierDTO subscriptionTierDTO) {
+	public SubscriptionTierDTO save(SubscriptionTierDTO subscriptionTierDTO, User user) {
 		LOG.debug("Request to save SubscriptionTier: {}", subscriptionTierDTO);
 		SubscriptionTier subscriptionTier = subscriptionTierMapper.toEntity(subscriptionTierDTO);
-		Author author = authorRepository.findById(subscriptionTierDTO.getAuthor())
+		Author author = authorRepository.findByOwner(user)
 				.orElseThrow(() -> new EntityNotFoundException("Author not found"));
 		subscriptionTier.setAuthor(author);
 		subscriptionTier = subscriptionTierRepository.save(subscriptionTier);
@@ -39,47 +40,37 @@ public class SubscriptionTierServiceImpl implements SubscriptionTierService {
 	}
 
 	@Override
-	public SubscriptionTierDTO update(SubscriptionTierDTO subscriptionTierDTO) {
-		LOG.debug("Request to update SubscriptionTier: {}", subscriptionTierDTO);
-		SubscriptionTier subscriptionTier = subscriptionTierMapper.toEntity(subscriptionTierDTO);
-		Author author = authorRepository.findById(subscriptionTierDTO.getAuthor())
-				.orElseThrow(() -> new EntityNotFoundException("Author not found"));
-		subscriptionTier.setAuthor(author);
-		subscriptionTier = subscriptionTierRepository.save(subscriptionTier);
-		return subscriptionTierMapper.toDto(subscriptionTier);
+	public SubscriptionTierDTO partialUpdate(SubscriptionTierDTO dto, User user) throws BadRequestException {
+		LOG.debug("Request to partially update SubscriptionTier: {}", dto);
+
+		SubscriptionTier existing = subscriptionTierRepository.findById(dto.getId())
+				.orElseThrow(() -> new EntityNotFoundException("SubscriptionTier not found"));
+
+		Author author = authorRepository.findByOwner(user).orElse(null);
+		if (!existing.getAuthor().getId().equals(author.getId())) {
+			throw new BadRequestException("Access denied: not the owner of this tier.");
+		}
+
+		subscriptionTierMapper.partialUpdate(existing, dto);
+		existing = subscriptionTierRepository.save(existing);
+		return subscriptionTierMapper.toDto(existing);
 	}
 
 	@Override
-	public SubscriptionTierDTO partialUpdate(SubscriptionTierDTO subscriptionTierDTO) {
-		LOG.debug("Request to partically update SubscriptionTier: {}", subscriptionTierDTO);
-
-		return subscriptionTierRepository
-				.findById(subscriptionTierDTO.getId())
-				.map(existingSubscriptionTier -> {
-					subscriptionTierMapper.partialUpdate(existingSubscriptionTier, subscriptionTierDTO);
-					return existingSubscriptionTier;
-				})
-				.map(subscriptionTierRepository::save)
-				.map(subscriptionTierMapper::toDto).orElse(null);
-	}
-
-	@Override
-	public Optional<SubscriptionTierDTO> findById(Long id) {
-		LOG.debug("Request to get SubscriptionTier: {}", id);
-		return subscriptionTierRepository.findById(id).map(subscriptionTierMapper::toDto);
-	}
-
-	@Override
-	public List<SubscriptionTierDTO> findAll() {
+	public List<SubscriptionTierDTO> findAllByAuthor(Long id) {
 		LOG.debug("Request to get all SubscriptionTiers");
-		return subscriptionTierRepository.findAll()
+		return subscriptionTierRepository.findAllByAuthorId(id)
 				.stream().map(subscriptionTierMapper::toDto)
 				.collect(Collectors.toList());
 	}
 
 	@Override
-	public void delete(Long id) {
+	public void delete(Long id, User user) {
 		LOG.debug("Request to delete SubscriptionTier: {}", id);
-		subscriptionTierRepository.deleteById(id);
+		SubscriptionTier tier = subscriptionTierRepository.findById(id)
+				.orElseThrow(() -> new EntityNotFoundException("tier not found"));
+		Author author = authorRepository.findByOwner(user).orElse(null);
+		if (tier.getAuthor().getId().equals(author.getId()))
+			subscriptionTierRepository.deleteById(id);
 	}
 }

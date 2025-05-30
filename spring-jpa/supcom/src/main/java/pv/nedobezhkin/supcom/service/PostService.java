@@ -1,22 +1,22 @@
 package pv.nedobezhkin.supcom.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.apache.coyote.BadRequestException;
 
+import pv.nedobezhkin.supcom.entity.User;
 import pv.nedobezhkin.supcom.service.dto.PostDTO;
 
 public interface PostService {
-	PostDTO save(PostDTO postDTO) throws BadRequestException;
+	PostDTO save(PostDTO postDTO, User user) throws BadRequestException;
 
-	PostDTO update(PostDTO postDTO) throws BadRequestException;
+	PostDTO partialUpdate(PostDTO postDTO, User user) throws BadRequestException;
 
-	PostDTO partialUpdate(PostDTO postDTO) throws BadRequestException;
+	PostDTO findById(Long id, User user);
 
-	Optional<PostDTO> findById(Long id);
+	List<PostDTO> findByAuthor(Long id, User user);
 
-	List<PostDTO> findAll();
+	List<PostDTO> findAllAvailablePosts(User user);
 
-	void delete(Long id);
+	void delete(Long id, User user);
 }

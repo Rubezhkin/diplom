@@ -13,10 +13,6 @@ public interface UserService extends UserDetailsService {
 
 	boolean existsByEmail(String email);
 
-	UserDTO save(UserDTO userDTO);
-
-	UserDTO update(UserDTO userDTO);
-
 	UserDTO partialUpdate(UserDTO userDTO);
 
 	Optional<UserDTO> findById(Long id);

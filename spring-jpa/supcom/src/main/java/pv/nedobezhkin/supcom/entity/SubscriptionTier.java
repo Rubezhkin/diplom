@@ -21,10 +21,10 @@ public class SubscriptionTier {
 	private Long id;
 
 	@ManyToOne
-	@JoinColumn(name = "author_id", referencedColumnName = "id")
+	@JoinColumn(name = "author_id", referencedColumnName = "id", nullable = false)
 	private Author author;
 
-	@Column(name = "name")
+	@Column(name = "name", nullable = false)
 	private String name;
 
 	@Column(name = "description")

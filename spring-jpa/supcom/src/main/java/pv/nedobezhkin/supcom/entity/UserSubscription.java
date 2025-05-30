@@ -14,18 +14,18 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "user_subsctiption")
+@Table(name = "user_subscription")
 public class UserSubscription {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	@ManyToOne
-	@JoinColumn(name = "user_id", referencedColumnName = "id")
+	@JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
 	private User user;
 
 	@ManyToOne
-	@JoinColumn(name = "subscription_id", referencedColumnName = "id")
+	@JoinColumn(name = "subscription_id", referencedColumnName = "id", nullable = false)
 	private SubscriptionTier tier;
 
 	@Column(name = "start_date")

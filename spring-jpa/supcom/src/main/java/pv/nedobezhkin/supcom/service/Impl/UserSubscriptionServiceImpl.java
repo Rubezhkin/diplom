@@ -1,7 +1,7 @@
 package pv.nedobezhkin.supcom.service.Impl;
 
+import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.coyote.BadRequestException;
@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import pv.nedobezhkin.supcom.entity.Author;
 import pv.nedobezhkin.supcom.entity.SubscriptionTier;
@@ -35,86 +36,64 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
 	private final AuthorRepository authorRepository;
 
 	@Override
-	public UserSubscriptionDTO save(UserSubscriptionDTO userSubscriptionDTO) throws BadRequestException {
-		LOG.debug("Request to save UserSubscription: {}", userSubscriptionDTO);
-		UserSubscription userSubscription = userSubscriptionMapper.toEntity(userSubscriptionDTO);
-		User user = userRepository.findById(userSubscriptionDTO.getUser())
-				.orElseThrow(() -> new EntityNotFoundException("user not found"));
-		SubscriptionTier subscriptionTier = subscriptionTierRepository.findById(userSubscriptionDTO.getTier())
+	@Transactional
+	public UserSubscriptionDTO save(Long subId, User user) throws BadRequestException {
+		LOG.debug("Request to save UserSubscription: {}, {}", subId, user);
+		SubscriptionTier subscriptionTier = subscriptionTierRepository.findById(subId)
 				.orElseThrow(() -> new EntityNotFoundException("subscription not found"));
 		Author author = authorRepository.findById(subscriptionTier.getAuthor().getId())
 				.orElseThrow(() -> new EntityNotFoundException("author not found"));
-		if (author.getOwner().equals(user)) {
+		if (author.getOwner().getId().equals(user.getId())) {
 			throw new BadRequestException("user - owner of this tier");
 		}
-		userSubscription.setUser(user);
-		userSubscription.setTier(subscriptionTier);
-		userSubscription = userSubscriptionRepository.save(userSubscription);
-		return userSubscriptionMapper.toDto(userSubscription);
-	}
+		if (subscriptionTier.getPrice() != null) {
+			if (user.getBalance().compareTo(subscriptionTier.getPrice()) < 0) {
+				throw new BadRequestException("not enough money");
+			}
+			if (hasActiveSubscription(user, subscriptionTier)) {
+				throw new BadRequestException("subcription is active");
+			}
+			user.setBalance(user.getBalance().subtract(subscriptionTier.getPrice()));
+			userRepository.save(user);
 
-	@Override
-	public UserSubscriptionDTO update(UserSubscriptionDTO userSubscriptionDTO) throws BadRequestException {
-		LOG.debug("Request to update UserSubscription: {}", userSubscriptionDTO);
-		UserSubscription userSubscription = userSubscriptionMapper.toEntity(userSubscriptionDTO);
-		User user = userRepository.findById(userSubscriptionDTO.getUser())
-				.orElseThrow(() -> new EntityNotFoundException("user not found"));
-		SubscriptionTier subscriptionTier = subscriptionTierRepository.findById(userSubscriptionDTO.getTier())
-				.orElseThrow(() -> new EntityNotFoundException("subscription not found"));
-		Author author = authorRepository.findById(subscriptionTier.getAuthor().getId())
-				.orElseThrow(() -> new EntityNotFoundException("author not found"));
-		if (author.getOwner().equals(user)) {
-			throw new BadRequestException("user - owner of this tier");
+			User seller = userRepository.findById(author.getOwner().getId())
+					.orElseThrow(() -> new EntityNotFoundException("author's owner not found"));
+			seller.setBalance(seller.getBalance().add(subscriptionTier.getPrice()));
+			userRepository.save(seller);
 		}
-		userSubscription.setUser(user);
-		userSubscription.setTier(subscriptionTier);
-		userSubscription = userSubscriptionRepository.save(userSubscription);
-		return userSubscriptionMapper.toDto(userSubscription);
+
+		UserSubscription subscription = new UserSubscription();
+		subscription.setUser(user);
+		subscription.setTier(subscriptionTier);
+		subscription.setStartDate(ZonedDateTime.now());
+		subscription.setEndDate(ZonedDateTime.now().plusMonths(1));
+
+		subscription = userSubscriptionRepository.save(subscription);
+		return userSubscriptionMapper.toDto(subscription);
 	}
 
 	@Override
-	public UserSubscriptionDTO partialUpdate(UserSubscriptionDTO usersubscriptionDTO) throws BadRequestException {
-		LOG.debug("Request to partically update UserSubscription: {}", usersubscriptionDTO);
-
-		UserSubscriptionDTO result = userSubscriptionRepository
-				.findById(usersubscriptionDTO.getId())
-				.map(existingUserSubscription -> {
-					userSubscriptionMapper.partialUpdate(existingUserSubscription, usersubscriptionDTO);
-					return existingUserSubscription;
-				}).map(userSubscriptionMapper::toDto)
-				.orElse(null);
-		User user = userRepository.findById(result.getUser())
-				.orElseThrow(() -> new EntityNotFoundException("user not found"));
-		SubscriptionTier subscriptionTier = subscriptionTierRepository.findById(result.getTier())
-				.orElseThrow(() -> new EntityNotFoundException("subscription not found"));
-		Author author = authorRepository.findById(subscriptionTier.getAuthor().getId())
-				.orElseThrow(() -> new EntityNotFoundException("author not found"));
-		if (author.getOwner().equals(user)) {
-			throw new BadRequestException("user - owner of this tier");
-		}
-		return result = userSubscriptionRepository
-				.findById(result.getId()).map(userSubscriptionRepository::save)
-				.map(userSubscriptionMapper::toDto).orElse(null);
-	}
-
-	@Override
-	public Optional<UserSubscriptionDTO> findById(Long id) {
-		LOG.debug("Request to get UserSubscription: {}", id);
-		return userSubscriptionRepository.findById(id).map(userSubscriptionMapper::toDto);
-	}
-
-	@Override
-	public List<UserSubscriptionDTO> findAll() {
+	public List<UserSubscriptionDTO> findByUser(User user) {
 		LOG.debug("Request to get all UserSubscriptions");
-		return userSubscriptionRepository.findAll()
+		return userSubscriptionRepository.findAllByUser(user)
 				.stream().map(userSubscriptionMapper::toDto)
 				.collect(Collectors.toList());
 	}
 
 	@Override
-	public void delete(Long id) {
+	public void delete(Long id, User user) {
 		LOG.debug("Request to delete UserSubscription: {}", id);
-		userSubscriptionRepository.deleteById(id);
+		UserSubscription userSubscription = userSubscriptionRepository.findById(id)
+				.orElseThrow(() -> new EntityNotFoundException("userSub not found"));
+		if (user.isAdmin() || userSubscription.getUser().getId().equals(user.getId())) {
+			userSubscriptionRepository.deleteById(id);
+		}
 	}
 
+	public boolean hasActiveSubscription(User user, SubscriptionTier tier) {
+		return userSubscriptionRepository
+				.findByUserAndTier(user, tier)
+				.stream()
+				.anyMatch(sub -> sub.getEndDate().isAfter(ZonedDateTime.now()));
+	}
 }

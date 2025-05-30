@@ -18,10 +18,10 @@ public class TierTier {
 	private Long id;
 
 	@ManyToOne
-	@JoinColumn(name = "parent_id", referencedColumnName = "id")
+	@JoinColumn(name = "parent_id", referencedColumnName = "id", nullable = false)
 	private SubscriptionTier parentTier;
 
 	@ManyToOne
-	@JoinColumn(name = "child_id", referencedColumnName = "id")
+	@JoinColumn(name = "child_id", referencedColumnName = "id", nullable = false)
 	private SubscriptionTier childTier;
 }

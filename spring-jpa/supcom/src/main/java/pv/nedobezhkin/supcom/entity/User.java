@@ -36,7 +36,7 @@ public class User implements UserDetails {
 	@Column(name = "is_admin", nullable = false)
 	private boolean isAdmin;
 
-	@Column(name = "balance")
+	@Column(name = "balance", nullable = false)
 	private BigDecimal balance;
 
 	@Override

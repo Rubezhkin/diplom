@@ -51,22 +51,6 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public UserDTO save(UserDTO userDTO) {
-		LOG.debug("Request to save User: {}", userDTO);
-		User user = userMapper.toEntity(userDTO);
-		user = userRepository.save(user);
-		return userMapper.toDto(user);
-	}
-
-	@Override
-	public UserDTO update(UserDTO userDTO) {
-		LOG.debug("Request to update User: {}", userDTO);
-		User user = userMapper.toEntity(userDTO);
-		user = userRepository.save(user);
-		return userMapper.toDto(user);
-	}
-
-	@Override
 	public UserDTO partialUpdate(UserDTO userDTO) {
 		LOG.debug("Request to partically update User: {}", userDTO);
 

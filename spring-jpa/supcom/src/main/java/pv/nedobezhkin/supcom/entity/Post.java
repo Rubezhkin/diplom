@@ -1,5 +1,6 @@
 package pv.nedobezhkin.supcom.entity;
 
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 
 import jakarta.persistence.Column;
@@ -33,4 +34,10 @@ public class Post {
 
 	@Column(name = "creation_date")
 	private ZonedDateTime creationTime;
+
+	@Column(name = "price")
+	private BigDecimal price;
+
+	@Column(name = "content")
+	private String content;
 }
