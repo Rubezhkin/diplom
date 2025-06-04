@@ -60,23 +60,24 @@ public class PostServiceImpl implements PostService {
 	public PostDTO partialUpdate(PostDTO postDTO, User user) throws BadRequestException {
 		LOG.debug("Request to partically update Post: {}", postDTO);
 
-		PostDTO result = postRepository
+		Post result = postRepository
 				.findById(postDTO.getId())
 				.map(existingPost -> {
 					postMapper.partialUpdate(existingPost, postDTO);
 					return existingPost;
-				})
-				.map(postMapper::toDto).orElse(null);
+				}).orElse(null);
 		SubscriptionTier tier;
 		Author author = authorRepository.findByOwner(user)
 				.orElseThrow(() -> new EntityNotFoundException("Author not found"));
-		if (result.getTier() == null)
+		if (postDTO.getTier() == 0) // тк маппер игнорирует null приходится для сброса подписки использовать 0
 			tier = null;
 		else
-			tier = subscriptionTierRepository.findById(result.getTier())
+			tier = subscriptionTierRepository.findById(result.getTier().getId())
 					.orElseThrow(() -> new EntityNotFoundException("Tier not found"));
 		if (tier != null && !tier.getAuthor().equals(author))
 			throw new BadRequestException("the tier doesn't belong to the author");
+
+		result.setTier(tier);
 
 		return postRepository.findById(result.getId()).map(postRepository::save)
 				.map(postMapper::toDto).orElse(null);

@@ -32,11 +32,16 @@ public class AccessService {
 
 	@Transactional(readOnly = true)
 	public boolean hasAccessToPost(User user, Post post) {
-		if (user.isAdmin()) {
+
+		if (post.getTier() == null && post.getPrice() == null) {
 			return true;
 		}
 
-		if (post.getTier() == null && post.getPrice() == null) {
+		if (user == null) {
+			return false;
+		}
+
+		if (user.isAdmin()) {
 			return true;
 		}
 

@@ -11,8 +11,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -32,14 +30,14 @@ public class SecurityConfig {
 	private final UserService userService;
 	private final CustomAccessDeniedHandler accessDeniedHandler;
 	private final CustomLogoutHandler customLogoutHandler;
-	private final PasswordEncoder passwordEncoder;
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.csrf(AbstractHttpConfigurer::disable);
 
 		http.authorizeHttpRequests(auth -> {
-			auth.requestMatchers("/login/**", "/registration/**").permitAll();
+			auth.requestMatchers("/login/**", "/registration/**", "/api/posts/{id}", "/api/posts/author/{id}")
+					.permitAll();
 			auth.anyRequest().authenticated();
 		})
 				.userDetailsService(userService)
