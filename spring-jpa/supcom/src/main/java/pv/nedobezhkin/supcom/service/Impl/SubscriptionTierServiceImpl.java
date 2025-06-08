@@ -3,9 +3,9 @@ package pv.nedobezhkin.supcom.service.Impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -40,7 +40,7 @@ public class SubscriptionTierServiceImpl implements SubscriptionTierService {
 	}
 
 	@Override
-	public SubscriptionTierDTO partialUpdate(SubscriptionTierDTO dto, User user) throws BadRequestException {
+	public SubscriptionTierDTO partialUpdate(SubscriptionTierDTO dto, User user) throws AccessDeniedException {
 		LOG.debug("Request to partially update SubscriptionTier: {}", dto);
 
 		SubscriptionTier existing = subscriptionTierRepository.findById(dto.getId())
@@ -48,7 +48,7 @@ public class SubscriptionTierServiceImpl implements SubscriptionTierService {
 
 		Author author = authorRepository.findByOwner(user).orElse(null);
 		if (!existing.getAuthor().getId().equals(author.getId())) {
-			throw new BadRequestException("Access denied: not the owner of this tier.");
+			throw new AccessDeniedException("Access denied: not the owner of this tier.");
 		}
 
 		subscriptionTierMapper.partialUpdate(existing, dto);
@@ -65,7 +65,7 @@ public class SubscriptionTierServiceImpl implements SubscriptionTierService {
 	}
 
 	@Override
-	public void delete(Long id, User user) throws BadRequestException {
+	public void delete(Long id, User user) throws AccessDeniedException {
 		LOG.debug("Request to delete SubscriptionTier: {}", id);
 		SubscriptionTier tier = subscriptionTierRepository.findById(id)
 				.orElseThrow(() -> new EntityNotFoundException("tier not found"));
@@ -73,6 +73,6 @@ public class SubscriptionTierServiceImpl implements SubscriptionTierService {
 		if (tier.getAuthor().getId().equals(author.getId()))
 			subscriptionTierRepository.deleteById(id);
 		else
-			throw new BadRequestException("it not user's tier");
+			throw new AccessDeniedException("it not user's tier");
 	}
 }

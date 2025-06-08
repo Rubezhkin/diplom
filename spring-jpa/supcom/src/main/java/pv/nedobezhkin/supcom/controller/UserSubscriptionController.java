@@ -1,8 +1,9 @@
 package pv.nedobezhkin.supcom.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import pv.nedobezhkin.supcom.entity.User;
@@ -20,7 +21,7 @@ public class UserSubscriptionController {
 
 	@PostMapping("/{id}")
 	public ResponseEntity<UserSubscriptionDTO> create(@PathVariable Long id,
-			@AuthenticationPrincipal User user) throws BadRequestException {
+			@AuthenticationPrincipal User user) throws AccessDeniedException {
 		UserSubscriptionDTO result = userSubscriptionService.save(id, user);
 		return ResponseEntity.ok().body(result);
 	}
@@ -32,13 +33,10 @@ public class UserSubscriptionController {
 
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> delete(@PathVariable Long id, @AuthenticationPrincipal User user)
-			throws BadRequestException {
-		try {
-			userSubscriptionService.delete(id, user);
-			return ResponseEntity.noContent().build();
-		} catch (Exception e) {
-			return ResponseEntity.badRequest().header(e.getMessage()).build();
-		}
+			throws AccessDeniedException {
+
+		userSubscriptionService.delete(id, user);
+		return ResponseEntity.noContent().build();
 
 	}
 }

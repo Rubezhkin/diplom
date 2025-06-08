@@ -4,9 +4,9 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -37,21 +37,21 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
 
 	@Override
 	@Transactional
-	public UserSubscriptionDTO save(Long subId, User user) throws BadRequestException {
+	public UserSubscriptionDTO save(Long subId, User user) throws AccessDeniedException {
 		LOG.debug("Request to save UserSubscription: {}, {}", subId, user);
 		SubscriptionTier subscriptionTier = subscriptionTierRepository.findById(subId)
 				.orElseThrow(() -> new EntityNotFoundException("subscription not found"));
 		Author author = authorRepository.findById(subscriptionTier.getAuthor().getId())
 				.orElseThrow(() -> new EntityNotFoundException("author not found"));
 		if (author.getOwner().getId().equals(user.getId())) {
-			throw new BadRequestException("user - owner of this tier");
+			throw new AccessDeniedException("user - owner of this tier");
 		}
 		if (subscriptionTier.getPrice() != null) {
 			if (user.getBalance().compareTo(subscriptionTier.getPrice()) < 0) {
-				throw new BadRequestException("not enough money");
+				throw new AccessDeniedException("not enough money");
 			}
 			if (hasActiveSubscription(user, subscriptionTier)) {
-				throw new BadRequestException("subcription is active");
+				throw new AccessDeniedException("subcription is active");
 			}
 			user.setBalance(user.getBalance().subtract(subscriptionTier.getPrice()));
 			userRepository.save(user);
@@ -81,14 +81,14 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
 	}
 
 	@Override
-	public void delete(Long id, User user) throws BadRequestException {
+	public void delete(Long id, User user) throws AccessDeniedException {
 		LOG.debug("Request to delete UserSubscription: {}", id);
 		UserSubscription userSubscription = userSubscriptionRepository.findById(id)
 				.orElseThrow(() -> new EntityNotFoundException("userSub not found"));
 		if (user.isAdmin() || userSubscription.getUser().getId().equals(user.getId())) {
 			userSubscriptionRepository.deleteById(id);
 		} else
-			throw new BadRequestException("it not user's userSubscription");
+			throw new AccessDeniedException("it not user's userSubscription");
 	}
 
 	public boolean hasActiveSubscription(User user, SubscriptionTier tier) {

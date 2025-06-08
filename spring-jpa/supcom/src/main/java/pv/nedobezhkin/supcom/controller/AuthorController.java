@@ -39,29 +39,23 @@ public class AuthorController {
 		return ResponseEntity.ok().body(result);
 	}
 
-	@PatchMapping("/{id}")
+	@PatchMapping("")
 	public ResponseEntity<AuthorDTO> partialUpdateAuthor(
 			@NotNull @RequestBody AuthorDTO authorDTO, @AuthenticationPrincipal User user) throws BadRequestException {
 		LOG.debug("REST request to patch Author: {} {}", user, authorDTO);
-		try {
-			AuthorDTO result = authorService.partialUpdate(authorDTO, user);
 
-			return ResponseEntity.ok().body(result);
-		} catch (Exception e) {
-			return ResponseEntity.badRequest().header(e.getMessage()).build();
-		}
+		AuthorDTO result = authorService.partialUpdate(authorDTO, user);
+
+		return ResponseEntity.ok().body(result);
 
 	}
 
 	@DeleteMapping("")
 	public ResponseEntity<Void> deleteAuthor(@AuthenticationPrincipal User user) {
 		LOG.debug("REST request to delete author: {}", user);
-		try {
-			authorService.delete(user);
-			return ResponseEntity.noContent().build();
-		} catch (Exception e) {
-			return ResponseEntity.badRequest().header(e.getMessage()).build();
-		}
+
+		authorService.delete(user);
+		return ResponseEntity.noContent().build();
 
 	}
 

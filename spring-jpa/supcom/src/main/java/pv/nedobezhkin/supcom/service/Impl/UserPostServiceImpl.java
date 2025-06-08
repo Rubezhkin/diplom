@@ -4,9 +4,9 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -36,7 +36,7 @@ public class UserPostServiceImpl implements UserPostService {
 
 	@Override
 	@Transactional
-	public UserPostDTO save(Long postId, User user) throws BadRequestException {
+	public UserPostDTO save(Long postId, User user) throws AccessDeniedException {
 		LOG.debug("Request to save UserPost: {} {}", postId, user);
 		Post post = postRepository.findById(postId)
 				.orElseThrow(() -> new EntityNotFoundException("post not found"));
@@ -46,7 +46,7 @@ public class UserPostServiceImpl implements UserPostService {
 			throw new IllegalArgumentException("This post is not for sale");
 		}
 		if (author.getOwner().equals(user)) {
-			throw new BadRequestException("user - owner of this post");
+			throw new AccessDeniedException("user - owner of this post");
 		}
 		BigDecimal price = post.getPrice();
 		if (user.getBalance().compareTo(price) < 0) {
@@ -79,14 +79,14 @@ public class UserPostServiceImpl implements UserPostService {
 	}
 
 	@Override
-	public void delete(Long id, User user) throws BadRequestException {
+	public void delete(Long id, User user) throws AccessDeniedException {
 		LOG.debug("Request to delete UserPost: {}", id);
 		UserPost userPost = userPostRepository.findById(id)
 				.orElseThrow(() -> new EntityNotFoundException("userPost not found"));
 		if (userPost.getUser().getId().equals(user.getId()))
 			userPostRepository.deleteById(id);
 		else
-			throw new BadRequestException("it not user's userPost");
+			throw new AccessDeniedException("it not user's userPost");
 	}
 
 }

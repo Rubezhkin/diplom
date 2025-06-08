@@ -1,10 +1,10 @@
 package pv.nedobezhkin.supcom.controller;
 
 import java.util.List;
-import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,7 +40,7 @@ public class SubscriptionTierController {
 	@PatchMapping("/{id}")
 	public ResponseEntity<SubscriptionTierDTO> partialUpdateSubscriptionTier(@PathVariable Long id,
 			@NotNull @RequestBody SubscriptionTierDTO subscriptiontierDTO, @AuthenticationPrincipal User user)
-			throws BadRequestException {
+			throws AccessDeniedException {
 		LOG.debug("REST request to patch SubscriptionTier: {} {}", id, subscriptiontierDTO);
 		subscriptiontierDTO.setId(id);
 		SubscriptionTierDTO result = subscriptiontierService.partialUpdate(subscriptiontierDTO, user);
@@ -61,14 +61,11 @@ public class SubscriptionTierController {
 
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> deleteSubscriptionTier(@PathVariable Long id, @AuthenticationPrincipal User user)
-			throws BadRequestException {
+			throws AccessDeniedException {
 		LOG.debug("REST request to delete subscriptiontier: {}", id);
-		try {
-			subscriptiontierService.delete(id, user);
-			return ResponseEntity.noContent().build();
-		} catch (Exception e) {
-			return ResponseEntity.badRequest().header(e.getMessage()).build();
-		}
+
+		subscriptiontierService.delete(id, user);
+		return ResponseEntity.noContent().build();
 
 	}
 

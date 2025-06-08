@@ -7,9 +7,9 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -36,7 +36,7 @@ public class TierTierServiceImpl implements TierTierService {
 	private final AuthorRepository authorRepository;
 
 	@Override
-	public TierTierDTO save(TierTierDTO tiertierDTO, User user) throws BadRequestException {
+	public TierTierDTO save(TierTierDTO tiertierDTO, User user) throws AccessDeniedException {
 		LOG.debug("Request to save TierTier: {}", tiertierDTO);
 
 		SubscriptionTier parentTier = tierRepository.findById(tiertierDTO.getParentTier())
@@ -44,10 +44,10 @@ public class TierTierServiceImpl implements TierTierService {
 		SubscriptionTier childTier = tierRepository.findById(tiertierDTO.getChildTier())
 				.orElseThrow(() -> new EntityNotFoundException("child tier not found"));
 		if (!parentTier.getAuthor().equals(childTier.getAuthor()))
-			throw new BadRequestException("tiers' authors not same");
+			throw new AccessDeniedException("tiers' authors not same");
 		if (!parentTier.getAuthor().getId().equals(authorRepository.findByOwner(user)
 				.orElseThrow(() -> new EntityNotFoundException("Author not found")).getId())) {
-			throw new BadRequestException("it's not user's tiers");
+			throw new AccessDeniedException("it's not user's tiers");
 		}
 
 		checkLops(parentTier, childTier);
@@ -71,7 +71,7 @@ public class TierTierServiceImpl implements TierTierService {
 	}
 
 	@Override
-	public void delete(Long id, User user) throws BadRequestException {
+	public void delete(Long id, User user) throws AccessDeniedException {
 		LOG.debug("Request to delete TierTier: {}", id);
 		Author author = authorRepository.findByOwner(user)
 				.orElseThrow(() -> new EntityNotFoundException("Author not found"));
@@ -80,20 +80,20 @@ public class TierTierServiceImpl implements TierTierService {
 		if (list.indexOf(tierTier) != -1)
 			tierTierRepository.deleteById(id);
 		else
-			throw new BadRequestException("it's not user's tierTier");
+			throw new AccessDeniedException("it's not user's tierTier");
 	}
 
-	private void checkLops(SubscriptionTier parent, SubscriptionTier child) throws BadRequestException {
+	private void checkLops(SubscriptionTier parent, SubscriptionTier child) throws AccessDeniedException {
 		if (parent.equals(child)) {
-			throw new BadRequestException("Parent and child cannot be the same tier");
+			throw new AccessDeniedException("Parent and child cannot be the same tier");
 		}
 
 		if (isReachable(parent, child)) {
-			throw new BadRequestException("Cycle detected: parent already связан с child");
+			throw new AccessDeniedException("Cycle detected: parent already связан с child");
 		}
 
 		if (isReachable(child, parent)) {
-			throw new BadRequestException("Cycle detected: child уже связан с parent");
+			throw new AccessDeniedException("Cycle detected: child уже связан с parent");
 		}
 	}
 

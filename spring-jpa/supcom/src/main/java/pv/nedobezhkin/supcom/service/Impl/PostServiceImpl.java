@@ -7,9 +7,10 @@ import java.util.stream.Collectors;
 import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import pv.nedobezhkin.supcom.entity.Author;
@@ -36,7 +37,7 @@ public class PostServiceImpl implements PostService {
 	private final AccessService accessService;
 
 	@Override
-	public PostDTO save(PostDTO postDTO, User user) throws BadRequestException {
+	public PostDTO save(PostDTO postDTO, User user) throws AccessDeniedException {
 		LOG.debug("Request to save Post: {}", postDTO);
 		Post post = postMapper.toEntity(postDTO);
 		Author author = authorRepository.findByOwner(user)
@@ -48,7 +49,7 @@ public class PostServiceImpl implements PostService {
 			tier = subscriptionTierRepository.findById(postDTO.getTier())
 					.orElseThrow(() -> new EntityNotFoundException("Tier not found"));
 		if (tier != null && !tier.getAuthor().equals(author))
-			throw new BadRequestException("the tier doesn't belong to the author");
+			throw new AccessDeniedException("the tier doesn't belong to the author");
 		post.setAuthor(author);
 		post.setTier(tier);
 		post.setCreationTime(ZonedDateTime.now());
@@ -57,30 +58,36 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
-	public PostDTO partialUpdate(PostDTO postDTO, User user) throws BadRequestException {
+	public PostDTO partialUpdate(PostDTO postDTO, User user) throws BadRequestException, AccessDeniedException {
 		LOG.debug("Request to partically update Post: {}", postDTO);
 
-		Post result = postRepository
-				.findById(postDTO.getId())
-				.map(existingPost -> {
-					postMapper.partialUpdate(existingPost, postDTO);
-					return existingPost;
-				}).orElse(null);
-		SubscriptionTier tier;
+		Post existingPost = postRepository.findById(postDTO.getId())
+				.orElseThrow(() -> new EntityNotFoundException("Post not found"));
+
 		Author author = authorRepository.findByOwner(user)
 				.orElseThrow(() -> new EntityNotFoundException("Author not found"));
-		if (postDTO.getTier() == 0) // тк маппер игнорирует null приходится для сброса подписки использовать 0
-			tier = null;
-		else
-			tier = subscriptionTierRepository.findById(result.getTier().getId())
+
+		if (!existingPost.getAuthor().getId().equals(author.getId())) {
+			throw new AccessDeniedException("User is not the author of this post");
+		}
+
+		SubscriptionTier tier;
+		if (postDTO.getTier() != null && postDTO.getTier() == 0) {
+			tier = null; // сбросить уровень подписки
+		} else if (postDTO.getTier() != null) {
+			tier = subscriptionTierRepository.findById(postDTO.getTier())
 					.orElseThrow(() -> new EntityNotFoundException("Tier not found"));
-		if (tier != null && !tier.getAuthor().equals(author))
-			throw new BadRequestException("the tier doesn't belong to the author");
+			if (!tier.getAuthor().equals(author)) {
+				throw new AccessDeniedException("The tier doesn't belong to the author");
+			}
+		} else {
+			tier = existingPost.getTier(); // оставить без изменений
+		}
 
-		result.setTier(tier);
-
-		return postRepository.findById(result.getId()).map(postRepository::save)
-				.map(postMapper::toDto).orElse(null);
+		postMapper.partialUpdate(existingPost, postDTO);
+		existingPost.setTier(tier);
+		Post saved = postRepository.save(existingPost);
+		return postMapper.toDto(saved);
 	}
 
 	@Override
@@ -119,7 +126,7 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
-	public void delete(Long id, User user) throws BadRequestException {
+	public void delete(Long id, User user) throws AccessDeniedException {
 		LOG.debug("Request to delete Post: {}", id);
 		Post post = postRepository.findById(id)
 				.orElseThrow(() -> new EntityNotFoundException("post not found"));
@@ -127,7 +134,7 @@ public class PostServiceImpl implements PostService {
 		if (post.getAuthor().getId().equals(author.getId()))
 			postRepository.deleteById(id);
 		else
-			throw new BadRequestException("it's not user's post");
+			throw new AccessDeniedException("it's not user's post");
 	}
 
 }

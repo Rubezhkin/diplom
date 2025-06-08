@@ -1,10 +1,10 @@
 package pv.nedobezhkin.supcom.controller;
 
 import java.util.List;
-import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,7 +30,7 @@ public class TierTierController {
 	@PostMapping("")
 	public ResponseEntity<TierTierDTO> createTierTier(
 			@Valid @RequestBody TierTierDTO TierTierDTO,
-			@AuthenticationPrincipal User user) throws BadRequestException {
+			@AuthenticationPrincipal User user) throws AccessDeniedException {
 		LOG.debug("REST request to save TierTier: {}", TierTierDTO);
 		TierTierDTO result = TierTierService.save(TierTierDTO, user);
 		return ResponseEntity.ok().body(result);
@@ -45,14 +45,11 @@ public class TierTierController {
 
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> deleteTierTier(@PathVariable Long id, @AuthenticationPrincipal User user)
-			throws BadRequestException {
+			throws AccessDeniedException {
 		LOG.debug("REST request to delete TierTier: {}", id);
-		try {
-			TierTierService.delete(id, user);
-			return ResponseEntity.noContent().build();
-		} catch (Exception e) {
-			return ResponseEntity.badRequest().header(e.getMessage()).build();
-		}
+
+		TierTierService.delete(id, user);
+		return ResponseEntity.noContent().build();
 
 	}
 }

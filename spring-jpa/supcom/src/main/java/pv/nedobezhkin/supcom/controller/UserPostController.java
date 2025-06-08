@@ -2,10 +2,10 @@ package pv.nedobezhkin.supcom.controller;
 
 import java.util.List;
 
-import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,15 +29,12 @@ public class UserPostController {
 	@PostMapping("/{postId}")
 	public ResponseEntity<UserPostDTO> purchasePost(
 			@PathVariable Long postId,
-			@AuthenticationPrincipal User user) throws BadRequestException {
+			@AuthenticationPrincipal User user) throws AccessDeniedException {
 		LOG.debug("REST request to purchase post: {} by user {}", postId, user.getId());
 
-		try {
-			UserPostDTO result = userPostService.save(postId, user);
-			return ResponseEntity.ok(result);
-		} catch (IllegalArgumentException e) {
-			return ResponseEntity.badRequest().header(e.getMessage()).build();
-		}
+		UserPostDTO result = userPostService.save(postId, user);
+		return ResponseEntity.ok(result);
+
 	}
 
 	@GetMapping("")
@@ -48,13 +45,10 @@ public class UserPostController {
 
 	@DeleteMapping("/{postId}")
 	public ResponseEntity<Void> delete(@PathVariable Long postId, @AuthenticationPrincipal User user)
-			throws BadRequestException {
-		try {
-			userPostService.delete(postId, user);
-			return ResponseEntity.noContent().build();
-		} catch (Exception e) {
-			return ResponseEntity.badRequest().header(e.getMessage()).build();
-		}
+			throws AccessDeniedException {
+
+		userPostService.delete(postId, user);
+		return ResponseEntity.noContent().build();
 
 	}
 }
