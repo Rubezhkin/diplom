@@ -17,9 +17,11 @@ import pv.nedobezhkin.supcom.entity.Author;
 import pv.nedobezhkin.supcom.entity.Post;
 import pv.nedobezhkin.supcom.entity.SubscriptionTier;
 import pv.nedobezhkin.supcom.entity.User;
+import pv.nedobezhkin.supcom.entity.UserAuthor;
 import pv.nedobezhkin.supcom.repository.AuthorRepository;
 import pv.nedobezhkin.supcom.repository.PostRepository;
 import pv.nedobezhkin.supcom.repository.SubscriptionTierRepository;
+import pv.nedobezhkin.supcom.repository.UserAuthorRepository;
 import pv.nedobezhkin.supcom.service.AccessService;
 import pv.nedobezhkin.supcom.service.PostService;
 import pv.nedobezhkin.supcom.service.dto.PostDTO;
@@ -35,6 +37,7 @@ public class PostServiceImpl implements PostService {
 	private final AuthorRepository authorRepository;
 	private final SubscriptionTierRepository subscriptionTierRepository;
 	private final AccessService accessService;
+	private final UserAuthorRepository userAuthorRepository;
 
 	@Override
 	public PostDTO save(PostDTO postDTO, User user) throws AccessDeniedException {
@@ -117,12 +120,19 @@ public class PostServiceImpl implements PostService {
 	@Transactional(readOnly = true)
 	public List<PostDTO> findAllAvailablePosts(User user) {
 		LOG.debug("Request to get all Posts");
-		return postRepository.findPostBySubscriptions(user)
-				.stream().map(post -> {
+		List<Author> availableAuthors = userAuthorRepository.findByUser(user)
+				.stream()
+				.map(UserAuthor::getAuthor)
+				.toList();
+
+		return postRepository.findAllByAuthorIn(availableAuthors)
+				.stream()
+				.map(post -> {
 					boolean access = accessService.hasAccessToPost(user, post);
 					return postMapper.toDto(post, access);
 				})
 				.collect(Collectors.toList());
+
 	}
 
 	@Override
