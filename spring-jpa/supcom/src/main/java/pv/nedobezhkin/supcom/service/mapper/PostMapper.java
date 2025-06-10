@@ -14,12 +14,14 @@ public interface PostMapper extends EntityMapper<PostDTO, Post> {
 	default PostDTO toDto(Post entity, boolean access) {
 		PostDTO dto = new PostDTO();
 		dto.setAuthor(entity.getAuthor().getId());
+		dto.setAuthorName(entity.getAuthor().getName());
 		dto.setContent(access ? entity.getContent() : "no access");
 		dto.setCreationTime(entity.getCreationTime());
 		dto.setId(entity.getId());
 		dto.setPrice(entity.getPrice());
 		dto.setTier(entity.getTier() != null ? entity.getTier().getId() : null);
 		dto.setTitle(entity.getTitle());
+		dto.setAccess(access);
 		return dto;
 	}
 

@@ -39,6 +39,12 @@ public class AuthorController {
 		return ResponseEntity.ok().body(result);
 	}
 
+	@GetMapping()
+	public ResponseEntity<AuthorDTO> getAuthorByUser(@AuthenticationPrincipal User user) {
+		AuthorDTO result = authorService.findByUser(user).orElse(null);
+		return ResponseEntity.ok().body(result);
+	}
+
 	@PatchMapping("")
 	public ResponseEntity<AuthorDTO> partialUpdateAuthor(
 			@NotNull @RequestBody AuthorDTO authorDTO, @AuthenticationPrincipal User user) throws BadRequestException {

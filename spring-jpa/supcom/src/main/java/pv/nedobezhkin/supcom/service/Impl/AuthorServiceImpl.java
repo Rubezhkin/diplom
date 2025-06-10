@@ -60,4 +60,9 @@ public class AuthorServiceImpl implements AuthorService {
 		authorRepository.delete(author);
 	}
 
+	@Override
+	public Optional<AuthorDTO> findByUser(User user) {
+		return authorRepository.findByOwner(user).map(authorMapper::toDto);
+	}
+
 }

@@ -14,4 +14,6 @@ public class PostDTO {
 	private ZonedDateTime creationTime;
 	private BigDecimal price;
 	private String content;
+	private boolean access;
+	private String authorName;
 }

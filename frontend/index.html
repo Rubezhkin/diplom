@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Посты</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="js/header.js"></script>
+  </head>
+  <body>
+    <h1>Посты</h1>
+    <div id="posts-container"></div>
+
+    <script>
+      async function fetchPosts() {
+        try {
+          const response = await fetch("/api/posts", {
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error(`Ошибка: ${response.status}`);
+          }
+
+          const posts = await response.json();
+          renderPosts(posts);
+        } catch (error) {
+          console.error("Ошибка при загрузке постов:", error);
+        }
+      }
+
+      function renderPosts(posts) {
+        const container = document.getElementById("posts-container");
+        container.innerHTML = "";
+
+        posts.forEach((post) => {
+          const postDiv = document.createElement("div");
+          postDiv.classList.add("post");
+
+          let accessInfo = "";
+          if (post.access) {
+            accessInfo = '<p class="access">Доступ открыт</p>';
+          } else if (post.price != null) {
+            accessInfo = `<p class="access">Цена: ${post.price} ₽</p>`;
+          } else if (post.tier != null) {
+            accessInfo = `<p class="access">Доступ по подписке</p>`;
+          } else {
+            accessInfo = '<p class="access">Нет доступа</p>';
+          }
+
+          postDiv.innerHTML = `
+          <h2>${post.title}</h2>
+          <p>${post.access ? post.content : "[Контент скрыт]"}</p>
+          ${accessInfo}
+        `;
+
+          container.appendChild(postDiv);
+        });
+      }
+      document.addEventListener("headerLoaded", fetchPosts);
+      fetchPosts();
+    </script>
+  </body>
+</html>

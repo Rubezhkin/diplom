@@ -1,0 +1,69 @@
+<!-- Кнопка -->
+<button id="topup-btn">Пополнить</button>
+
+<!-- Модальное окно -->
+<div id="topup-modal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h3>Пополнение баланса</h3>
+    <form id="topup-form">
+      <label for="amount">Сумма (₽):</label>
+      <input type="number" id="amount" min="1" required />
+      <button type="submit">Пополнить</button>
+    </form>
+    <p id="topup-msg"></p>
+  </div>
+</div>
+
+<style>
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+  }
+
+  .modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 300px;
+    text-align: center;
+    border-radius: 8px;
+  }
+
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 24px;
+    cursor: pointer;
+  }
+
+  .close:hover {
+    color: black;
+  }
+
+  #topup-form input {
+    width: 100%;
+    padding: 8px;
+    margin: 10px 0;
+  }
+
+  #topup-form button {
+    padding: 8px 16px;
+    background-color: #333;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+
+  #topup-form button:hover {
+    background-color: #555;
+  }
+</style>

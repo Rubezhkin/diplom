@@ -13,4 +13,6 @@ public interface AuthorService {
 	Optional<AuthorDTO> findById(Long id);
 
 	void delete(User user);
+
+	Optional<AuthorDTO> findByUser(User user);
 }
