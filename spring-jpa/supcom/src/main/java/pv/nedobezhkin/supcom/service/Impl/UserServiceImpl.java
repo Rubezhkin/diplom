@@ -58,7 +58,6 @@ public class UserServiceImpl implements UserService {
 		if (userDTO.getPassword() != null) {
 			userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
 		}
-		userDTO.setBalance(null);
 		return userRepository
 				.findById(user.getId())
 				.map(existingUser -> {

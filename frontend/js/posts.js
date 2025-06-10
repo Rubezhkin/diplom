@@ -1,7 +1,7 @@
 const token = localStorage.getItem("token");
 const postsDiv = document.getElementById("posts");
 
-fetch("/api/posts", {
+fetch("http://127.0.0.1:8080/api/posts", {
   headers: {
     Authorization: `Bearer ${token}`,
   },
